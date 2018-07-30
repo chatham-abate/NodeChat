@@ -1,0 +1,42 @@
+.clickable:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.clickable:active, .clickable:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.smallText {
+  font-size: 10px;
+}
+
+.lighter {
+  background-color: rgba(255,255,255, .1);
+}
+
+.flexContainer {
+  display: flex;
+}
+
+.flexible {
+  flex: 1;
+}
+
+.bordered {
+  border-style: solid;
+  border-width: 3px;
+  border-color: rgba(0,0,0,.1);
+}
+
+.fullyPadded {
+  padding: 10px;
+}
+
+.padded {
+  padding: 5px 10px;
+}
+
+.lightlyPadded {
+  padding: 5px;
+}

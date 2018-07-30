@@ -1,0 +1,22 @@
+{
+  "name": "reactexpress",
+  "version": "1.0.0",
+  "description": "Starter kit for creating React and Express apps",
+  "main": "server/Server.js",
+  "scripts": {
+    "client-install": "cd client && npm install",
+    "start": "node server/Server.js",
+    "server": "nodemon server/Server.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "author": "Chatham Abate",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^1.14.6"
+  },
+  "dependencies": {
+    "concurrently": "^3.5.1",
+    "express": "^4.16.2"
+  }
+}
