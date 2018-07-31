@@ -1,42 +1,54 @@
-.clickable:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.mainBlock {
+  width : 100vw;
+  height : 100vh;
+
+  background-color: rgb(10,0,20);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 15px;
+
+  color: rgb(200,200,200);
 }
 
-.clickable:active, .clickable:focus {
-  outline: none;
-  background-color: rgba(255, 255, 255, 0.2);
+.form {
+  background-color: rgba(255, 0, 255, .1);
+  width: 350px;
+
+  transition-duration: 1s;
 }
 
-.smallText {
-  font-size: 10px;
+.centeredText {
+  text-align: center;
 }
 
-.lighter {
-  background-color: rgba(255,255,255, .1);
+
+.centered {
+  margin: auto;
 }
 
-.flexContainer {
+.flexDisplay {
   display: flex;
+}
+
+.center {
+  margin: auto;
 }
 
 .flexible {
   flex: 1;
 }
 
-.bordered {
-  border-style: solid;
-  border-width: 3px;
-  border-color: rgba(0,0,0,.1);
-}
-
-.fullyPadded {
-  padding: 10px;
+.topPadded {
+  padding-top: 25vh;
 }
 
 .padded {
-  padding: 5px 10px;
+  padding: 10px;
 }
 
 .lightlyPadded {
-  padding: 5px;
+  padding: 5px 10px;
+}
+
+.errorLog {
+  background-color: rgb(40,0,20);
 }

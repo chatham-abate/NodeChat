@@ -66,7 +66,8 @@ class TextHandler {
 
     // Check each character.
     for(let character of username)
-      if(!(this.testCharacter(character, USERNAME_CHARACTER_RANGES) || foundInvalids.has(character))) {
+      if(!(this.testCharacter(character, USERNAME_CHARACTER_RANGES)
+        || foundInvalids.has(character))) {
         errorLog.push(SYMBOL_ERROR + " : " + character);
         foundInvalids.add(character);
       }
@@ -102,7 +103,7 @@ class TextHandler {
    * @param  {Array} errorLog
    *  The Error Log.
    */
-  validatePassword(password, errorLog) {
+  static validatePassword(password, errorLog) {
     const MIN_PW_LENGTH = 4;
     const PASSWORD_LENGTH_ERROR = "Invalid Password Length";
 

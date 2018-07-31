@@ -7,14 +7,46 @@ class UserLog {
     this.users = {}
   }
 
+  login(username, password) {
+    let validationKey = this.findValidtionKey(username);
+
+    const INVALID_USERNAME_ERROR  = "Username Not Found";
+
+    if(validationKey === null)
+      return new ServerResponse(null, [INVALID_USERNAME_ERROR]);
+
+    const WRONG_PASSWORD_ERROR = "Incorrect Password";
+
+    if(password != this.users[validationKey].password)
+      return new ServerResponse(null, [WRONG_PASSWORD_ERROR]);
+
+    return new ServerResponse(validationKey);
+  }
+
+  validate(validationKey, callback) {
+    const VALIDATION_ERROR = "Invalid Validation Key";
+
+    if(validationKey in this.users)
+      return callback(this.users[validationKey]);
+
+    return new ServerResponse(null, [VALIDATION_ERROR]);
+  }
+
+  findValidtionKey(username) {
+    for(let vKey in this.users)
+      if(this.users[vKey].username === username)
+        return vKey;
+
+    return null;
+  }
+
   usernameErrorLog(username) {
-    errorLog = [];
+    let errorLog = [];
 
     const NAME_TAKEN_ERROR = "Username Already Taken";
 
-    for(let user in this.users)
-      if(user.username === username)
-        errorLog.push(NAME_TAKEN_ERROR);
+    if(this.findValidtionKey(username) != null)
+      errorLog.push(NAME_TAKEN_ERROR);
 
     if(errorLog.length === 0)
       TextHandler.validateUsernameText(username, errorLog);
@@ -33,7 +65,7 @@ class UserLog {
 
     do {
       validationKey = TextHandler.generateKey();
-    } while(!(validationKey in this.users));
+    } while(validationKey in this.users);
 
     this.users[validationKey] = new User(username, password);
 

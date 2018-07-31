@@ -1,0 +1,32 @@
+input {
+  background-color: rgba(0, 0, 0, 0.0);
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+}
+
+input:focus {
+  outline: none;
+}
+
+.clickable {
+  transition-duration: .3s;
+}
+
+.clickable:hover, input:focus {
+  background-color: rgba(255, 255, 255, .075);
+  color: inherit;
+}
+
+::placeholder, .faded {
+  color: rgba(255, 255, 255, .4);
+}
+
+.required::placeholder {
+  color: rgb(100, 100, 200);
+}
+
+::selection {
+  background-color: rgba(255,255,255, .1);
+}
