@@ -15,6 +15,21 @@ input:focus {
   padding: 10px;
   flex: 1;
   cursor: default;
+  text-decoration: none;
+}
+
+.logEntry {
+  flex: 1;
+  text-align: center;
+  padding: 5px 10px;
+}
+
+.errorLog {
+  background-color: rgb(40,0,20);
+}
+
+.successLog {
+  background-color: rgb(0,40,20);
 }
 
 .clickable {
