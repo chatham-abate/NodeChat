@@ -9,8 +9,12 @@
   color: rgb(200,200,200);
 }
 
+a {
+  text-decoration: none;
+}
+
 .form {
-  background-color: rgba(255, 0, 255, .1);
+  background-color: rgb(31,7,42);
   width: 350px;
 
   transition-duration: 1s;
@@ -19,7 +23,6 @@
 .centeredText {
   text-align: center;
 }
-
 
 .centered {
   margin: auto;

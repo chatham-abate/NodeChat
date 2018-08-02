@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 
-import './componentStyles/genericStyles.css';
-import './componentStyles/inputStyles.css';
 
 class ErrorLog extends Component {
 

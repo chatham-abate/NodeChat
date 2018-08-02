@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import ErrorLog from './ErrorLog';
-import ClassModifier from "./componentModules/ClassModifier";
 
-import './componentStyles/genericStyles.css';
+import ErrorLog from './ErrorLog';
+import FormInput from './FormInput';
 
 class LoginDisplay extends Component {
 
@@ -10,12 +9,11 @@ class LoginDisplay extends Component {
     let username = this.refs.username;
     let password = this.refs.password;
 
-    if(username.value === "" || password.value === "") {
-      username.className += username.value === "" ? " required" : "";
-      password.className += password.value === "" ? " required" : "";
+    let flaggedUsername = username.flag();
+    let flaggedPassword = password.flag();
 
+    if(flaggedUsername || flaggedPassword)
       return;
-    }
 
     fetch("/api/login", {
       method: "POST",
@@ -31,12 +29,13 @@ class LoginDisplay extends Component {
   }
 
   clearForm() {
-    ClassModifier.clearInput(this.refs.username);
-    ClassModifier.clearInput(this.refs.password);
+    this.refs.username.unflag();
+    this.refs.password.unflagAndClear();
   }
 
   handleLoginResponse(response) {
     this.clearForm();
+
     if(response.errors.length !== 0)
       this.refs.log.logErrors(response.errors);
 
@@ -44,30 +43,25 @@ class LoginDisplay extends Component {
 
   render() {
     return (
-      <div className = "mainBlock topPadded">
+      <div className = "mainBlock">
+        <br /> <br /> <br /> 
         <div className = "centered form" ref = "form">
-          <div className = "flexDisplay">
-            <input className = "flexible clickable padded"
-              type = "text"
-              placeholder = "Username"
-              ref = "username" />
-          </div>
-          <div className = "flexDisplay">
-            <input className = "flexible clickable padded"
-              type = "password"
-              placeholder = "Password"
-              ref = "password" />
-          </div>
+          <FormInput type = "text"
+            placeholder = "Username" ref = "username" />
+          <FormInput type = "password"
+            placeholder = "Password" ref = "password" />
           <ErrorLog ref ="log" />
           <div className = "flexDisplay">
             <span
-              className = "flexible clickable padded centeredText faded"
+              className = "clickable button"
               onClick = {this.submitForm.bind(this)}>
               Login
             </span>
-            <span className = "flexible clickable padded centeredText faded">
+            <a
+              className = "clickable button"
+              href = "/newUser">
               New User
-            </span>
+            </a>
           </div>
         </div>
       </div>

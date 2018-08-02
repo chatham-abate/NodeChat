@@ -10,6 +10,13 @@ input:focus {
   outline: none;
 }
 
+.button {
+  text-align: center;
+  padding: 10px;
+  flex: 1;
+  cursor: default;
+}
+
 .clickable {
   transition-duration: .3s;
 }
@@ -19,12 +26,12 @@ input:focus {
   color: inherit;
 }
 
-::placeholder, .faded {
+::placeholder, .faded, .button {
   color: rgba(255, 255, 255, .4);
 }
 
 .required::placeholder {
-  color: rgb(100, 100, 200);
+  color: rgb(100, 100, 150);
 }
 
 ::selection {
