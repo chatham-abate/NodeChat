@@ -88,21 +88,15 @@ class UserLog {
    * @return {ServerResponse}
    *  The Response to send back to the client.
    */
-  readMessages(validationKey) {
-    return new ServerResponse(this.users[validationKey].readMessages());
+  readMessages(validationKey, participant) {
+    return new ServerResponse(
+      this.users[validationKey].readMessages(participant));
   }
 
 
-  /**
-   * Send a Message to all Users.
-   *
-   * @param  {Message} message
-   *  The Message.
-   *
-   * @return {ServerResponse}
-   *  If no errors. an Empty Success Response.
-   *  Otherwise, the error log Response.
-   */
+
+  // <<< SENDING METHODS IN-PROGRESS >>>
+
   sendAll(message) {
     let errorLog = [];
 
@@ -114,25 +108,12 @@ class UserLog {
 
     // Send to all Users.
     for(let vKey in this.users)
-      this.users[vKey].unreadMessages.push(message);
+      this.users[vKey].storeGeneralMessage(message);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 
-
-  /**
-   * Send a Direct Message to a User.
-   *
-   * @param  {Message} message
-   *  The Message.
-   * @param  {string} useranme
-   *  The Username of the recipient User.
-   *
-   * @return {ServerResponse}
-   *  If no errors. an Empty Success Response.
-   *  Otherwise, the error log Response.
-   */
-  sendDirectMessage(message, useranme) {
+  sendDirectMessage(senderKey, message, recipientUsername) {
     let errorLog = [];
 
     // Validate the Message.
@@ -142,16 +123,19 @@ class UserLog {
       return new ServerResponse(null, errorLog);
 
     // Find the recipient.
-    let recipientKey = this.findValidtionKey(username);
+    let recipientKey = this.findValidtionKey(recipientUsername);
 
     if(!recipientKey)
       return UserLog.USERNAME_NOT_FOUND_ERROR;
 
     // Send the message.
-    this.users[recipientKey].unreadMessages.push(message);
+    this.users[recipientKey].storePrivateMessage(message, message.sender);
+    this.users[senderKey].storePrivateMessage(message, recipientUsername);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
+
+// <<< >>>
 
 
   /**
@@ -218,7 +202,7 @@ class UserLog {
    *
    * @param  {string} username
    *  The desired Username of the new User.
-   * @param  {string} password 
+   * @param  {string} password
    *  The desired password of the new User.
    *
    * @return {ServerResponse}
@@ -235,6 +219,7 @@ class UserLog {
 
     let validationKey = "";
 
+    // Generate Validation Key.
     do {
       validationKey = TextHandler.generateKey();
     } while(validationKey in this.users);

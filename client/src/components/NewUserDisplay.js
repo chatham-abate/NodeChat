@@ -40,7 +40,7 @@ class NewUserDisplay extends Component {
       return;
     }
 
-    // Fetch teh request.
+    // Fetch the request.
     let body = {
       username : username.value,
       password : password.value
