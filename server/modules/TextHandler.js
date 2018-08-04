@@ -5,6 +5,15 @@
  */
 class TextHandler {
 
+  static validateMessage(message, errorLog) {
+    const MESSAGE_MAX_LENGTH = 300;
+    const MESSAGE_LENGTH_ERROR = "Invalid Message Length";
+
+    if(message.text.length > MESSAGE_MAX_LENGTH
+        || message.text.length === 0)
+      errorLog.push(MESSAGE_LENGTH_ERROR);
+  }
+
   /**
    * Validate a Username's Text.
    * All errors found will be pushed onto the given error log.
@@ -19,8 +28,8 @@ class TextHandler {
     const MIN_USERNAME_LENGTH = 4;
 
     // Check Length
-    if(username.length < MIN_USERNAME_LENGTH) {
-      errorLog.push(USERNAME_LENGTH_ERROR);
+    if(username.length < TextHandler.MIN_USERNAME_LENGTH) {
+      errorLog.push(TextHandler.USERNAME_LENGTH_ERROR);
       return;
     }
 
@@ -39,13 +48,13 @@ class TextHandler {
    *  The Error Log.
    */
   static validateStartingCharacter(username, errorLog) {
-    const PREFIX_ERROR  = "Invalid Starting Character";
+    const PREFIX_ERROR  = "Invalid Username Starting Character";
 
     const START_CHARACTER_RANGES = [['a', 'z'], ['A', 'Z']];
 
     // Check starting character.
     if(!this.testCharacter(username.charAt(0), START_CHARACTER_RANGES))
-      errorLog.push(PREFIX_ERROR + " : " + username.charAt(0));
+      errorLog.push(PREFIX_ERROR);
   }
 
 
@@ -58,18 +67,16 @@ class TextHandler {
    *  The Error Log.
    */
   static validateFullUsername(username, errorLog) {
-    const SYMBOL_ERROR = "Invalid Username Character";
+    const SYMBOL_ERROR = "Invalid Username Character(s)";
 
     const USERNAME_CHARACTER_RANGES = [['a', 'z'], ['A', 'Z'],
                                        ['0', '9'], ['_', '_']];
-    let foundInvalids = new Set([]);
 
     // Check each character.
     for(let character of username)
-      if(!(this.testCharacter(character, USERNAME_CHARACTER_RANGES)
-        || foundInvalids.has(character))) {
-        errorLog.push(SYMBOL_ERROR + " : " + character);
-        foundInvalids.add(character);
+      if(!this.testCharacter(character, USERNAME_CHARACTER_RANGES)) {
+        errorLog.push(SYMBOL_ERROR);
+        return;
       }
   }
 

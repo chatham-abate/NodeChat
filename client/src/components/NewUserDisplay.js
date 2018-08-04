@@ -58,10 +58,15 @@ class NewUserDisplay extends Component {
    *  The response from the Server.
    */
   handleNewUserResponse(response) {
-    if(response.errors.length !== 0)
+    const SUCCESS_MESSAGE = ["Success!", "Return to Home Screen to Login"];
+
+    if(response.errors.length !== 0) {
       this.refs.errorLog.logEntries(response.errors);
+      this.refs.successLog.clear();
+    }
     else {
-      this.refs.successLog.logEntries([response.body]);
+      this.refs.successLog.logEntries(SUCCESS_MESSAGE);
+      this.refs.errorLog.clear();
     }
   }
 
@@ -103,11 +108,11 @@ class NewUserDisplay extends Component {
                 onClick = {this.submitForm.bind(this)}>
                 Create
               </span>
-              <a
+              <span
                 className = "clickable button"
-                href = "/">
+                onClick = {() => this.props.switchDisplay("login")}>
                 Back
-              </a>
+              </span>
             </div>
           </div>
         </div>

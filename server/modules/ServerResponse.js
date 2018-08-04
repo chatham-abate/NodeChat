@@ -6,6 +6,10 @@
  */
 class ServerResponse {
 
+  static get EMPTY_SUCCESS_RESPONSE() {
+    return new ServerResponse("SUCCESS", []);
+  }
+
   /**
    * Constructor.
    *

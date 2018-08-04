@@ -62,9 +62,12 @@ class LoginDisplay extends Component {
     // Check for errors.
     if(response.errors.length !== 0)
       this.refs.errorLog.logEntries(response.errors);
-    else
-      this.refs.successLog.logEntries([response.body]);
+    else {
+      // Store the Validation Key.
+      this.props.validate(response.body);
 
+      this.props.switchDisplay("chat");
+    }
   }
 
 
@@ -103,11 +106,11 @@ class LoginDisplay extends Component {
                 onClick = {this.submitForm.bind(this)}>
                 Login
               </span>
-              <a
+              <span
                 className = "clickable button"
-                href = "/newUser">
+                onClick = {() => this.props.switchDisplay("newUser")}>
                 New User
-              </a>
+              </span>
             </div>
           </div>
         </div>

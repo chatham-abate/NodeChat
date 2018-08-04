@@ -9,6 +9,10 @@
   color: rgb(200,200,200);
 }
 
+.container {
+  padding: 0px;
+}
+
 .form {
   background-color: rgb(31,7,42);
   width: 350px;
