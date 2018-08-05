@@ -9,8 +9,16 @@ class User {
     this.privateChatLogs = {};
   }
 
-  storeGeneralMessage(message) {
-    this.genChatLog.store(message);
+  storeMessage(message, participant) {
+    if(!participant) {
+      ths.genChatLog.store(message);
+      return;
+    }
+
+    if(!(participant in this.privateChatLogs))
+      this.privateChatLogs[participant] = new MessageLog();
+
+    this.privateChatLogs[participant].store(message);
   }
 
   readMessages(participant) {
@@ -22,13 +30,6 @@ class User {
     }
 
     return this.genChatLog.read();
-  }
-
-  storePrivateMessage(message, participant) {
-    if(!(participant in this.privateChatLogs))
-      this.privateChatLogs[participant] = new MessageLog();
-
-    this.privateChatLogs[participant].store(message);
   }
 }
 

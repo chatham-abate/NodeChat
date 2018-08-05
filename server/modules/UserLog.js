@@ -108,7 +108,7 @@ class UserLog {
 
     // Send to all Users.
     for(let vKey in this.users)
-      this.users[vKey].storeGeneralMessage(message);
+      this.users[vKey].storeMessage(message);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
@@ -129,8 +129,8 @@ class UserLog {
       return UserLog.USERNAME_NOT_FOUND_ERROR;
 
     // Send the message.
-    this.users[recipientKey].storePrivateMessage(message, message.sender);
-    this.users[senderKey].storePrivateMessage(message, recipientUsername);
+    this.users[recipientKey].storeMessage(message, message.sender);
+    this.users[senderKey].storeMessage(message, recipientUsername);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }

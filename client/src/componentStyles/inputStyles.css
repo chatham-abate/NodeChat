@@ -1,12 +1,14 @@
-input {
+input, textarea {
   background-color: rgba(0, 0, 0, 0.0);
   color: inherit;
   font-family: inherit;
   font-size: inherit;
   border: none;
+
+  resize: none;
 }
 
-input:focus {
+input:focus, textarea:focus {
   outline: none;
 }
 
@@ -36,12 +38,12 @@ input:focus {
   transition-duration: .3s;
 }
 
-.clickable:hover, input:focus {
+.clickable:hover, input:focus, textarea:focus {
   background-color: rgba(255, 255, 255, .075);
   color: inherit;
 }
 
-::placeholder, .faded, .button {
+::placeholder, .faded, .button, .clickable:active {
   color: rgba(255, 255, 255, .4);
 }
 

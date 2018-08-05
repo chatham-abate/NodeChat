@@ -6,7 +6,8 @@ import ChatDisplay from './components/ChatDisplay';
 
 import './componentStyles/genericStyles.css';
 import './componentStyles/inputStyles.css';
-// Change
+import './componentStyles/chatStyles.css';
+
 class App extends Component {
   constructor() {
     super();

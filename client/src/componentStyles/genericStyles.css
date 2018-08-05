@@ -32,12 +32,20 @@
   display: flex;
 }
 
+.columnFlex {
+  flex-direction: column;
+}
+
 .center {
   margin: auto;
 }
 
 .flexible {
   flex: 1;
+}
+
+.inflexible {
+  flex: 0;
 }
 
 .topPadded {
@@ -50,8 +58,4 @@
 
 .lightlyPadded {
   padding: 5px 10px;
-}
-
-.errorLog {
-  background-color: rgb(40,0,20);
 }

@@ -1,0 +1,19 @@
+
+.userColumn {
+  width: 200px;
+  background-color: rgb(31,7,42);
+}
+
+.chatPane {
+  flex: 1;
+}
+
+.messagePane {
+  flex : .5;
+  min-height: 100px;
+  max-height: 200px;
+
+  font-size: inherit;
+
+  background-color: rgba(0,255,255,.05);
+}

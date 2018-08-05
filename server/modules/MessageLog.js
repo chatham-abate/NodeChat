@@ -53,4 +53,4 @@ class MessageLog {
   }
 }
 
-module.export.MessageStack = MessageLog;
+module.exports.MessageLog = MessageLog;
