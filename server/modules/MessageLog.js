@@ -29,6 +29,10 @@ class MessageLog {
     this.messages = [];
   }
 
+  get unreadLength() {
+    return this.unreadMessages.length;
+  }
+
   store(message) {
     this.unreadMessages.push(message);
 

@@ -4,6 +4,10 @@
   background-color: rgb(31,7,42);
 }
 
+.tag {
+  color : rgb(130,100,100);
+}
+
 .chatPane {
   flex: 1;
 }

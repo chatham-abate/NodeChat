@@ -9,6 +9,10 @@
   color: rgb(200,200,200);
 }
 
+b {
+  font-weight: normal;
+}
+
 .container {
   padding: 0px;
 }

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import UserColumn from './UserColumn';
 
 class ChatDisplay extends Component {
 
@@ -21,14 +22,11 @@ class ChatDisplay extends Component {
         <div className = "flexible flexDisplay columnFlex">
           <div className = "chatPane">
           </div>
-          <div className = "flexDisplay columnFlex messagePane">
-            <div className = "clickable button inflexible">Hello</div>
+          <div className = "flexDisplay messagePane">
             <textarea className = "flexible clickable padded" />
           </div>
         </div>
-        <div className = "userColumn">
-          User Column
-        </div>
+        <UserColumn validationKey = {this.props.validationKey} />
       </div>
     );
   }

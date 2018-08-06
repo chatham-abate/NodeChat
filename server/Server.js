@@ -42,6 +42,19 @@ app.post("/api/sendAll", (req, res) => {
   }));
 });
 
+// Retrieve the Username Mapping for a specific User.
+// valdationKey REQUIRED
+// The Username Mappng will map each username on the server to the number
+// of unread messages sent from that username to the the given User.
+app.post("/api/getUserMap", (req, res) => {
+  res.json(log.validate(req.body.validationKey, (validationKey) => {
+    return log.usernameMap(validationKey);
+  }));
+});
+
+
+// BETA MESSAGING
+
 // Send a Direct Message to a specific User.
 // validationKey, messageText, messageDate, recipientUsername REQUIRED.
 // If no Errors, an Empty Success Response is sent to the Client.

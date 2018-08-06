@@ -9,6 +9,15 @@ class User {
     this.privateChatLogs = {};
   }
 
+  get privateMessageMap() {
+    let map = {};
+
+    for(let user in this.privateChatLogs)
+      map[user] = this.privateChatLogs[user].unreadLength;
+
+    return map;
+  }
+
   storeMessage(message, participant) {
     if(!participant) {
       ths.genChatLog.store(message);

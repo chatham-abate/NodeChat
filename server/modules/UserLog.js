@@ -73,7 +73,7 @@ class UserLog {
 
     // Check the Validation Key.
     if(validationKey in this.users)
-      return callback(this.users[validationKey]);
+      return callback(validationKey);
 
     return new ServerResponse(null, [VALIDATION_ERROR]);
   }
@@ -93,6 +93,20 @@ class UserLog {
       this.users[validationKey].readMessages(participant));
   }
 
+
+  usernameMap(validationKey) {
+    let user = this.users[validationKey];
+    let map = user.privateMessageMap;
+
+    for(let userKey in this.users) {
+      let username = this.users[userKey].username;
+
+      if(username !== user.username && !(username in map))
+        map[username] = 0;
+    }
+
+    return map;
+  }
 
 
   // <<< SENDING METHODS IN-PROGRESS >>>
