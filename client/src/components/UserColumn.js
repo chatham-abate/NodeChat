@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Fetcher from './componentModules/Fetcher';
 
-
 class UserColumn extends Component {
 
   constructor() {
@@ -18,12 +17,8 @@ class UserColumn extends Component {
 
   update() {
     Fetcher.fetchJSON("/api/getUserMap",
-      { validationKey : this.props.validationKey() },
-      userMap =>
-      {
-        this.setState({users : userMap})
-        console.log(userMap);
-      });
+      {validationKey : this.props.validationKey()},
+      json => this.setState({users : json.body}));
   }
 
   handleClick(username) {
@@ -32,17 +27,14 @@ class UserColumn extends Component {
 
   render() {
     return (
-      <div className = "userColumn">
+      <div className = "color-primary-4 userColumn">
         {Object.keys(this.state.users).map((username) => {
-          let tag = (<b className = "tag">
-            {this.state.users[username] > 0 ? this.state.users[username] : ""}
-          </b>);
-
           return (
             <div key = {username}
-              onClick = {() => this.handleClick(username)}
-              className = "clickable button">
-              {username} {tag}
+              onClick = {() => this.props.switchAddress(username)}
+              className = {"clickable button " +
+                (this.state.users[username] > 0 ? "unread" : "") }>
+              {username}
             </div>
           );
         })}

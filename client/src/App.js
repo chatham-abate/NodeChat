@@ -7,6 +7,7 @@ import ChatDisplay from './components/ChatDisplay';
 import './componentStyles/genericStyles.css';
 import './componentStyles/inputStyles.css';
 import './componentStyles/chatStyles.css';
+import './componentStyles/colors.css';
 
 class App extends Component {
   constructor() {
@@ -14,6 +15,7 @@ class App extends Component {
 
     this.state = {
       validationKey : "",
+      currentUsername : "",
       currentDisplay : "",
       displays : {}
     };
@@ -32,15 +34,25 @@ class App extends Component {
     return this.state.validationKey;
   }
 
+  setUsername(username) {
+    this.setState({username : username});
+  }
+
+  username() {
+    return this.state.username;
+  }
+
   get loginDisplay() {
     return (<LoginDisplay
       switchDisplay = {this.switchDisplay.bind(this)}
+      setUsername = {this.setUsername.bind(this)}
       validate = {this.validate.bind(this)} />);
   }
 
   get chatDisplay() {
     return (<ChatDisplay
       switchDisplay = {this.switchDisplay.bind(this)}
+      username = {this.username.bind(this)}
       validationKey = {this.validationKey.bind(this)} />);
   }
 

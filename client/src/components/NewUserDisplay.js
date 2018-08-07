@@ -91,7 +91,7 @@ class NewUserDisplay extends Component {
     return (
       <div className = "mainBlock">
         <div className = "topPadded">
-          <div className = "centered form"
+          <div className = "color-primary-4 centered form"
             ref = "form"
             onKeyPress = {this.handleKeyPress.bind(this)}>
             <FormInput type = "text"

@@ -30,17 +30,6 @@ app.post("/api/login", (req, res) => {
   res.json(log.login(req.body.username, req.body.password));
 });
 
-// Send a Message to all Users.
-// validationKey, messageText, messageDate REQUIRED.
-// If no Errors, an Empty Success Response is sent to the Client.
-app.post("/api/sendAll", (req, res) => {
-  res.json(log.validate(req.body.validationKey, (validationKey) => {
-    let message = new Message(req.body.messageText, req.body.messageDate,
-      log.getUsername(validationKey));
-
-    return log.sendAll(message);
-  }));
-});
 
 // Retrieve the Username Mapping for a specific User.
 // valdationKey REQUIRED
@@ -52,33 +41,22 @@ app.post("/api/getUserMap", (req, res) => {
   }));
 });
 
-
 // BETA MESSAGING
 
-// Send a Direct Message to a specific User.
-// validationKey, messageText, messageDate, recipientUsername REQUIRED.
-// If no Errors, an Empty Success Response is sent to the Client.
-app.post("/api/sendDirectMessage", (req, res) => {
+app.post("/api/send", (req, res) => {
   res.json(log.validate(req.body.validationKey, (validationKey) => {
     let message = new Message(req.body.messageText, req.body.messageDate,
       log.getUsername(validationKey));
 
-    return log.sendDirectMessage(validationKey,
-      message, req.body.recipientUsername);
+    if(req.body.recipientUsername)
+      return log.sendDirectMessage(validationKey,
+        message, req.body.recipientUsername);
+
+    return log.sendAll(message);
   }));
 });
 
-// Retrieve a Client's unread Messages from the General Chat.
-// validationKey REQUIRED.
-app.post("/api/readGenChat", (req, res) => {
-  res.json(log.validate(req.body.validationKey, (validationKey) => {
-    return log.readMessages(validationKey);
-  }));
-});
-
-// Retrieve a Client's unread Messages from a private conversation.
-// validationKey, participant REQUIRED.
-app.post("/api/readPrivateChat", (req, res) => {
+app.post("/api/read", (req, res) => {
   res.json(log.validate(req.body.validationKey, (validationKey) => {
     return log.readMessages(validationKey, req.body.participant);
   }));

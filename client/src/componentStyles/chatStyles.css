@@ -1,23 +1,49 @@
 
 .userColumn {
   width: 200px;
-  background-color: rgb(31,7,42);
-}
-
-.tag {
-  color : rgb(130,100,100);
 }
 
 .chatPane {
   flex: 1;
+  color: white;
+  overflow: scroll;
+  scroll-behavior:
+}
+
+.messageContainer {
+  padding : 5px 15px;
+  display: flex;
+}
+
+.message {
+  padding: 8px;
+  background-color: rgba(255,255,255, .05);
+  max-width: 60%;
+
+  color: rgba(255,255,255, .8);
+}
+
+.messageBulk {
+  font-size: 1.2em;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.message b {
+  color: rgba(255,255,255, .6);
+}
+
+.authored {
+  text-align: right;
+  margin-left: auto;
+}
+
+.default {
+  background-color: rgb(30,0,0);
 }
 
 .messagePane {
-  flex : .5;
-  min-height: 100px;
-  max-height: 200px;
-
+  flex : .2;
+  min-height: 50px;
+  max-height: 100px;
   font-size: inherit;
-
-  background-color: rgba(0,255,255,.05);
 }

@@ -2,9 +2,10 @@
   width : 100vw;
   height : 100vh;
 
-  background-color: rgb(10,0,20);
+  background-color: rgb(10,10,10);
+
   font-family: "Courier New", Courier, monospace;
-  font-size: 15px;
+  font-size: .8em;
 
   color: rgb(200,200,200);
 }
@@ -18,9 +19,7 @@ b {
 }
 
 .form {
-  background-color: rgb(31,7,42);
   width: 350px;
-
   transition-duration: 1s;
 }
 
@@ -30,6 +29,12 @@ b {
 
 .centered {
   margin: auto;
+}
+
+.bordered {
+  border-style: solid;
+  border-width: 1px;
+  border-color: grey;
 }
 
 .flexDisplay {
@@ -62,4 +67,8 @@ b {
 
 .lightlyPadded {
   padding: 5px 10px;
+}
+
+.darker {
+  background-color: rgba(0,0,0,.6);
 }

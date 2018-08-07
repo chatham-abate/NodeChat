@@ -12,6 +12,15 @@ import Fetcher from './componentModules/Fetcher';
  */
 class LoginDisplay extends Component {
 
+  constructor() {
+    super();
+
+    this.state = {
+      pendingUsername : "",
+      waiting : false
+    };
+  }
+
   /**
    * Submit The Login Form.
    * The Login Form is not actually an HTML Form,
@@ -25,8 +34,10 @@ class LoginDisplay extends Component {
     let flaggedUsername = username.flag();
     let flaggedPassword = password.flag();
 
-    if(flaggedUsername || flaggedPassword)
+    if(flaggedUsername || flaggedPassword || this.state.waiting)
       return;
+
+    this.setState({pendingUsername : username.value, waiting : true});
 
     // Create and fetch the request.
     let body = {
@@ -56,6 +67,8 @@ class LoginDisplay extends Component {
    *  The Response from the Server.
    */
   handleLoginResponse(response) {
+    this.setState({waiting : false});
+
     // Clear the Form upon recieving the response.
     this.clearForm();
 
@@ -65,7 +78,7 @@ class LoginDisplay extends Component {
     else {
       // Store the Validation Key.
       this.props.validate(response.body);
-
+      this.props.setUsername(this.state.pendingUsername);
       this.props.switchDisplay("chat");
     }
   }
@@ -91,7 +104,7 @@ class LoginDisplay extends Component {
     return (
       <div className = "mainBlock">
         <div className = "topPadded">
-          <div className = "centered form"
+          <div className = "color-primary-4 centered form"
             ref = "form"
             onKeyPress = {this.handleKeyPress.bind(this)}>
             <FormInput type = "text"

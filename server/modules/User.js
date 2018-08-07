@@ -20,7 +20,7 @@ class User {
 
   storeMessage(message, participant) {
     if(!participant) {
-      ths.genChatLog.store(message);
+      this.genChatLog.store(message);
       return;
     }
 

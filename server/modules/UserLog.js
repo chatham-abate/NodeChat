@@ -105,7 +105,7 @@ class UserLog {
         map[username] = 0;
     }
 
-    return map;
+    return new ServerResponse(map);
   }
 
 

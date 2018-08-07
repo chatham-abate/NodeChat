@@ -1,32 +1,46 @@
 import React, { Component } from 'react';
 import UserColumn from './UserColumn';
+import AddressPane from './AddressPane';
 
 class ChatDisplay extends Component {
 
+  constructor() {
+    super();
 
-  coponentDidMount() {
-
+    this.state = {
+      timerID : null,
+      address : ""
+    };
   }
 
-  sendMessage() {
+  componentDidMount() {
+    let timerID = setInterval(this.tick.bind(this), 1000);
 
+    this.setState({timerID : timerID});
   }
 
-  sendDirectMessage() {
+  componentWillUnmount() {
+    clearInterval(this.state.timerID);
+  }
 
+  switchAddress(address) {
+    this.refs.addressPane.switchAddress(address);
+  }
+
+  tick() {
+    this.refs.userColumn.update();
+    this.refs.addressPane.update();
   }
 
   render() {
     return (
       <div className = "mainBlock flexDisplay">
-        <div className = "flexible flexDisplay columnFlex">
-          <div className = "chatPane">
-          </div>
-          <div className = "flexDisplay messagePane">
-            <textarea className = "flexible clickable padded" />
-          </div>
-        </div>
-        <UserColumn validationKey = {this.props.validationKey} />
+        <AddressPane ref = "addressPane"
+          username = {this.props.username}
+          validationKey = {this.props.validationKey} />
+        <UserColumn ref = "userColumn"
+          switchAddress = {this.switchAddress.bind(this)}
+          validationKey = {this.props.validationKey} />
       </div>
     );
   }

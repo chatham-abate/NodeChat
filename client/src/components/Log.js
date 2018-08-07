@@ -55,7 +55,9 @@ class Log extends Component {
   render() {
     // Only render when there are entries.
     if(this.state.entries.length !== 0) {
-      let logClassName = this.state.errorLog ? "errorLog" : "successLog";
+      let logClassName =
+        this.state.errorLog ?
+          "color-secondary-1-4" : "color-complement-4";
 
       return (
         <div className = {"flexDisplay " + logClassName}>

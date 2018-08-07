@@ -26,14 +26,6 @@ input:focus, textarea:focus {
   padding: 5px 10px;
 }
 
-.errorLog {
-  background-color: rgb(40,0,20);
-}
-
-.successLog {
-  background-color: rgb(0,40,20);
-}
-
 .clickable {
   transition-duration: .3s;
 }
@@ -47,7 +39,7 @@ input:focus, textarea:focus {
   color: rgba(255, 255, 255, .4);
 }
 
-.required::placeholder {
+.required::placeholder, .unread {
   color: rgb(100, 100, 150);
 }
 
