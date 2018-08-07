@@ -7,22 +7,38 @@ class AddressPane extends Component {
     super();
 
     this.state = {
-      address : "",
-      messages : []
+      address : "~",
+      messages : [],
+      startIndex : null
     };
   }
 
+  componentDidMount() {
+    this.loadHistory(true);
+  }
+
   switchAddress(address) {
-    this.setState({address : address});
+    this.setState({address : address}, () =>
+      this.loadHistory(true));
+  }
+
+  loadHistory(scroll) {
+    let body = {
+      validationKey : this.props.validationKey(),
+      startIndex : this.state.startIndex,
+      participant : this.state.address
+    };
+
+    let callback = scroll ? this.scrollToBottom.bind(this) : (() => {});
+
+    Fetcher.fetchJSON("/api/load", body, json => this.setState(json.body, callback));
   }
 
   update() {
     let body = {
-      validationKey : this.props.validationKey()
+      validationKey : this.props.validationKey(),
+      participant : this.state.address
     };
-
-    if(this.state.address !== "")
-      body.participant = this.state.address;
 
     Fetcher.fetchJSON("/api/read", body, this.parseUpdate.bind(this));
   }
@@ -48,13 +64,10 @@ class AddressPane extends Component {
     let body = {
       validationKey : this.props.validationKey(),
       messageText : this.refs.message.value,
-      messageDate : new Date()
+      participant : this.state.address
     };
 
     this.refs.message.value = "";
-
-    if(this.state.address !== "")
-      body.recipientUsername = this.state.address;
 
     Fetcher.fetchJSON("/api/send", body, this.handleResponse.bind(this));
   }
@@ -73,9 +86,16 @@ class AddressPane extends Component {
   }
 
   render() {
+    let messageLoader = this.state.startIndex === 0
+      ? (<div className = "padded"> All Messages Loaded </div>)
+      : (<div className = "padded clickable"
+          onClick = {() => this.loadHistory(false)}>
+          Load Old Messages </div>);
+
     return (
       <div className = "color-secondary-2-4 flexible flexDisplay columnFlex">
         <div className = "chatPane">
+          {messageLoader}
           {this.state.messages.map((message, index) =>
             (<Message
               key = {index}

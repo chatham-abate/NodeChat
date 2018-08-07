@@ -1,44 +1,59 @@
 const MessageLog = require("./MessageLog").MessageLog;
+const TextHandler = require("./TextHandler").TextHandler;
 
 class User {
+
   constructor(username, password) {
     this.username = username;
     this.password = password;
 
-    this.genChatLog = new MessageLog();
-    this.privateChatLogs = {};
-  }
+    this.generalUnread = [];
 
-  get privateMessageMap() {
-    let map = {};
-
-    for(let user in this.privateChatLogs)
-      map[user] = this.privateChatLogs[user].unreadLength;
-
-    return map;
+    this.privateLogs = {};
   }
 
   storeMessage(message, participant) {
-    if(!participant) {
-      this.genChatLog.store(message);
+    if(participant === TextHandler.SERVER_CHARACTER) {
+      this.generalUnread.push(message);
       return;
     }
 
-    if(!(participant in this.privateChatLogs))
-      this.privateChatLogs[participant] = new MessageLog();
+    if(!(participant in this.privateLogs))
+      this.privateLogs[participant] = new MessageLog();
 
-    this.privateChatLogs[participant].store(message);
+    this.privateLogs[participant].store(message);
+  }
+
+  allPrivateMessages(privateParticipant) {
+    if(!(privateParticipant in this.privateLogs))
+      return [];
+
+    this.privateLogs[privateParticipant].read();
+    return this.privateLogs[privateParticipant].messages;
   }
 
   readMessages(participant) {
-    if(participant) {
-      if(participant in this.privateChatLogs)
-        return this.privateChatLogs[participant].read();
+    if(participant === TextHandler.SERVER_CHARACTER) {
+      let unreadGen = this.generalUnread;
+      this.generalUnread = [];
 
-      return [];
+      return unreadGen;
     }
 
-    return this.genChatLog.read();
+    if(!(participant in this.privateLogs))
+      return [];
+
+    return this.privateLogs[participant].read();
+  }
+
+  get messageMap() {
+    let map = {};
+    map[TextHandler.SERVER_CHARACTER] = this.generalUnread.length;
+
+    for(let username in this.privateLogs)
+      map[username] = this.privateLogs[username].unreadLength;
+
+    return map;
   }
 }
 

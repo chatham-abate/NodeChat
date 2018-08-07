@@ -19,6 +19,8 @@ class UserLog {
    */
   constructor() {
     this.users = {}
+
+    this.generalChatMessages = [];
   }
 
 
@@ -84,6 +86,7 @@ class UserLog {
    *
    * @param  {string} validationKey
    *  The Validation Key of the desired User.
+   * @param {string} participant
    *
    * @return {ServerResponse}
    *  The Response to send back to the client.
@@ -93,25 +96,62 @@ class UserLog {
       this.users[validationKey].readMessages(participant));
   }
 
+    // <<< SENDING METHODS IN-PROGRESS >>>
 
   usernameMap(validationKey) {
     let user = this.users[validationKey];
-    let map = user.privateMessageMap;
+    let map = user.messageMap;
 
     for(let userKey in this.users) {
       let username = this.users[userKey].username;
 
-      if(username !== user.username && !(username in map))
+      if(username !== user.username && !(username in map)) {
+        console.log(username + " Not Found");
         map[username] = 0;
+      }
     }
+
+    console.log(map);
 
     return new ServerResponse(map);
   }
 
+  loadHistory(validationKey, startIndex, participant) {
+    if(this.findValidtionKey(participant) === null
+      && participant !== TextHandler.SERVER_CHARACTER)
+      return this.USERNAME_NOT_FOUND_ERROR;
 
-  // <<< SENDING METHODS IN-PROGRESS >>>
+    const CHUNK_LENGTH = 20;
 
-  sendAll(message) {
+    let user = this.users[validationKey];
+
+    user.readMessages(participant);
+
+    let messageArray = participant === TextHandler.SERVER_CHARACTER
+      ? this.generalChatMessages
+      : user.allPrivateMessages(participant);
+
+    let responseArray = [];
+
+    let startInd = startIndex ? startIndex : messageArray.length;
+
+    startInd -= CHUNK_LENGTH;
+
+    if(startInd < 0)
+      startInd = 0;
+
+    for(let i = startInd; i < messageArray.length; i++)
+      responseArray.push(messageArray[i]);
+
+    let body = {
+      messages : responseArray,
+      startIndex : startInd
+    };
+
+    return new ServerResponse(body)
+  }
+
+  sendMessage(senderKey, message, participant) {
     let errorLog = [];
 
     // Validate the message.
@@ -120,31 +160,24 @@ class UserLog {
     if(errorLog.length !== 0)
       return new ServerResponse(null, errorLog);
 
-    // Send to all Users.
-    for(let vKey in this.users)
-      this.users[vKey].storeMessage(message);
+    if(participant === TextHandler.SERVER_CHARACTER) {
+      this.generalChatMessages.push(message);
 
-    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
-  }
+      for(let vKey in this.users)
+        this.users[vKey].storeMessage(message, TextHandler.SERVER_CHARACTER);
 
-  sendDirectMessage(senderKey, message, recipientUsername) {
-    let errorLog = [];
-
-    // Validate the Message.
-    TextHandler.validateMessage(message, errorLog);
-
-    if(errorLog.length !== 0)
-      return new ServerResponse(null, errorLog);
+      return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+    }
 
     // Find the recipient.
-    let recipientKey = this.findValidtionKey(recipientUsername);
+    let recipientKey = this.findValidtionKey(participant);
 
     if(!recipientKey)
       return UserLog.USERNAME_NOT_FOUND_ERROR;
 
     // Send the message.
     this.users[recipientKey].storeMessage(message, message.sender);
-    this.users[senderKey].storeMessage(message, recipientUsername);
+    this.users[senderKey].storeMessage(message, participant);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }

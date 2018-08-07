@@ -21,10 +21,6 @@ class UserColumn extends Component {
       json => this.setState({users : json.body}));
   }
 
-  handleClick(username) {
-
-  }
-
   render() {
     return (
       <div className = "color-primary-4 userColumn">

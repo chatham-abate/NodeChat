@@ -30,7 +30,6 @@ app.post("/api/login", (req, res) => {
   res.json(log.login(req.body.username, req.body.password));
 });
 
-
 // Retrieve the Username Mapping for a specific User.
 // valdationKey REQUIRED
 // The Username Mappng will map each username on the server to the number
@@ -41,26 +40,31 @@ app.post("/api/getUserMap", (req, res) => {
   }));
 });
 
-// BETA MESSAGING
-
+// Send A Message
+// validationKey, messageText, recipientUsername REQUIRED
 app.post("/api/send", (req, res) => {
   res.json(log.validate(req.body.validationKey, (validationKey) => {
-    let message = new Message(req.body.messageText, req.body.messageDate,
+    let message = new Message(req.body.messageText,
       log.getUsername(validationKey));
 
-    if(req.body.recipientUsername)
-      return log.sendDirectMessage(validationKey,
-        message, req.body.recipientUsername);
-
-    return log.sendAll(message);
+    return log.sendMessage(validationKey, message, req.body.participant);
   }));
 });
 
+// Read Unread messages.
+// validationKey, participant REQUIRED
 app.post("/api/read", (req, res) => {
   res.json(log.validate(req.body.validationKey, (validationKey) => {
     return log.readMessages(validationKey, req.body.participant);
   }));
 });
+
+// Load Historic Messages
+app.post("/api/load", (req, res) => {
+  res.json(log.validate(req.body.validationKey, (validationKey) => {
+    return log.loadHistory(validationKey, req.body.startIndex, req.body.participant);
+  }));
+})
 
 const port = 5000;
 

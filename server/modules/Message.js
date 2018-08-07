@@ -1,9 +1,9 @@
 
 class Message {
-  constructor(text, date, sender) {
+  constructor(text, sender) {
     this.sender = sender;
     this.text = text;
-    this.date = date;
+    this.date = new Date();
   }
 }
 

@@ -35,7 +35,6 @@ class MessageLog {
 
   store(message) {
     this.unreadMessages.push(message);
-
     this.messages.push(message);
   }
 
@@ -44,16 +43,6 @@ class MessageLog {
     this.unreadMessages = [];
 
     return unread;
-  }
-
-  getHistoriclData(start, end) {
-    let historicData = [];
-
-    for(let i = start; i < end; i++)
-      if(i >= 0 && i < this.messages.length)
-        historicData.push(this.messages[i]);
-
-    return historicData;
   }
 }
 
