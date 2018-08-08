@@ -1,4 +1,3 @@
-const MessageLog = require("./MessageLog").MessageLog;
 const TextHandler = require("./TextHandler").TextHandler;
 
 

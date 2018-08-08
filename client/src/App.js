@@ -53,7 +53,8 @@ class App extends Component {
     return (<ChatDisplay
       switchDisplay = {this.switchDisplay.bind(this)}
       username = {this.username.bind(this)}
-      validationKey = {this.validationKey.bind(this)} />);
+      validationKey = {this.validationKey.bind(this)}
+      initialAddress = "~" />);
   }
 
   get newUserDisplay() {

@@ -8,8 +8,7 @@ class ChatDisplay extends Component {
     super();
 
     this.state = {
-      timerID : null,
-      address : ""
+      timerID : null
     };
   }
 
@@ -37,9 +36,11 @@ class ChatDisplay extends Component {
       <div className = "mainBlock flexDisplay">
         <AddressPane ref = "addressPane"
           username = {this.props.username}
+          initialAddress = {this.props.initialAddress}
           validationKey = {this.props.validationKey} />
         <UserColumn ref = "userColumn"
           switchAddress = {this.switchAddress.bind(this)}
+          initialAddress = {this.props.initialAddress}
           validationKey = {this.props.validationKey} />
       </div>
     );

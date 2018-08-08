@@ -7,12 +7,14 @@ class UserColumn extends Component {
     super();
 
     this.state = {
-      conversations : {}
+      conversations : {},
+      toggledConversation : ""
     };
   }
 
   componentDidMount() {
-    this.update();
+    this.setState(
+      {toggledConversation : this.props.initialAddress}, this.update);
   }
 
   update() {
@@ -21,16 +23,21 @@ class UserColumn extends Component {
       json => this.setState({conversations : json.body}));
   }
 
-  render() {
+  switchAddress(address) {
+    this.props.switchAddress(address);
+    this.setState({toggledConversation : address});
+  }
 
+  render() {
     return (
       <div className = "color-primary-4 userColumn">
         {Object.keys(this.state.conversations).map((conversationKey) => {
           return (
             <div key = {conversationKey}
-              onClick = {() => this.props.switchAddress(conversationKey)}
-              className = {"clickable button " +
-                (this.state.conversations[conversationKey].unreadLength > 0 ? "unread" : "") }>
+              onClick = {() => this.switchAddress(conversationKey)}
+              className = {"clickable button" +
+                (this.state.conversations[conversationKey].unreadLength > 0 ? " unread" : "") +
+                (this.state.toggledConversation === conversationKey ? " toggled" : "")}>
               {this.state.conversations[conversationKey].name}
             </div>
           );

@@ -7,14 +7,14 @@ class AddressPane extends Component {
     super();
 
     this.state = {
-      address : "~",
+      address : "",
       messages : [],
       startIndex : null
     };
   }
 
   componentDidMount() {
-    this.loadHistory(true);
+    this.switchAddress(this.props.initialAddress);
   }
 
   switchAddress(address) {
