@@ -20,7 +20,6 @@ class UserLog {
     return new ServerResponse(null, ["Username Not Found"]);
   }
 
-
   /**
    * Constructor
    */
@@ -89,9 +88,89 @@ class UserLog {
     return new ServerResponse(null, [VALIDATION_ERROR]);
   }
 
-  createConversation(validationKey, name) {
+  // Messaging V2
+  // This new Version of Messaging will feature the Conversation Datastructure.
+  // This will allow for Group Chats with customizable members.
+  // Conversations will also Be how prvate Messaging chats are stored.
+  // Old MessageLogs, result in message histories being stored twce.
+  // They also restric the use of group chats aside from the General Chat.
+  //
+  // Should Conversations have Keys?
 
+  createConversation(username, name) {
+    const CONVERSATION_NAME_TAKEN = "Conversation Name Taken";
+
+    let errorLog = [];
+    TextHandler.validateNameText(name, errorLog);
+
+    if(errorLog.length !== 0)
+      return new ServerResponse(null, errorLog);
+
+    for(let cKey in this.conversations)
+      if(this.conversations[cKey].name === name)
+        return new ServerResponse(null, [CONVERSATION_NAME_TAKEN]);
+
+    let newConvo = new Conversation(name, this.users[validationKey].username);
+
+    let conversationKey = "";
+
+    do {
+      conversationKey = TextHandler.generateKey();
+    } while(conversationKey in this.conversations);
+
+    this.conversations[convesationKey] = newConvo;
+    this.users[validationKey].joinConversation(conversationKey, newConvo);
+
+    return new ServerResponse({conversationKey : conversationKey});
   }
+
+  addUser(userame, conversationKey) {
+    const USER_ALREADY_ERROR = "User Already in Conversation";
+
+    let conversation = this.conversations[conversationKey];
+
+    let userKey = this.findValidtionKey(username);
+
+    if(!userKey)
+      return this.USERNAME_NOT_FOUND_ERROR;
+
+    if(username in conversation.unreadLog)
+      return new ServerResponse(null, USER_ALREADY_ERROR);
+
+    this.users[userKey]
+      .joinConversation(conversationKey, this.conversations[conversationKey]);
+
+    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+  }
+
+  sendMessage(message, conversationKey) {
+    let conversation = this.conversations[conversationKey];
+
+    let errorLog = [];
+    TextHandler.validateMessage(message, errorLog);
+
+    if(errorLog.length !== 0)
+      return new ServerResponse(null, errorLog);
+
+    conversation.store(message);
+  }
+
+  readConversation(validationKey, conversationKey) {
+    let conversation = this.conversations[conversationKey];
+    let user = this.users[validationKey];
+
+    return new ServerResponse(conversation.read(user.username));
+  }
+
+  getConversationMap(validationKey) {
+    return this.users[validationKey].conversationMap;
+  }
+
+  loadConversationHistory(conversationKey, endIndex) {
+    
+  }
+
+  // *****
 
   // MESSAGNG V1
 
@@ -105,10 +184,10 @@ class UserLog {
    * @return {ServerResponse}
    *  The Response to send back to the client.
    */
-  readMessages(validationKey, participant) {
-    return new ServerResponse(
-      this.users[validationKey].readMessages(participant));
-  }
+  // readMessages(validationKey, participant) {
+  //   return new ServerResponse(
+  //     this.users[validationKey].readMessages(participant));
+  // }
 
 
   /**
@@ -212,37 +291,37 @@ class UserLog {
    * @return {ServerResponse}
    *  An Empty Success Response, if there are no errors.
    */
-  sendMessage(senderKey, message, participant) {
-    let errorLog = [];
-
-    // Validate the message.
-    TextHandler.validateMessage(message, errorLog);
-
-    if(errorLog.length !== 0)
-      return new ServerResponse(null, errorLog);
-
-    // If the message is sent to the General Chat.
-    if(participant === TextHandler.SERVER_CHARACTER) {
-      this.generalChatMessages.push(message);
-
-      for(let vKey in this.users)
-        this.users[vKey].storeMessage(message, TextHandler.SERVER_CHARACTER);
-
-      return ServerResponse.EMPTY_SUCCESS_RESPONSE;
-    }
-
-    // Find the recipient.
-    let recipientKey = this.findValidtionKey(participant);
-
-    if(!recipientKey)
-      return UserLog.USERNAME_NOT_FOUND_ERROR;
-
-    // Send the message.
-    this.users[recipientKey].storeMessage(message, message.sender);
-    this.users[senderKey].storeMessage(message, participant);
-
-    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
-  }
+  // sendMessage(senderKey, message, participant) {
+  //   let errorLog = [];
+  //
+  //   // Validate the message.
+  //   TextHandler.validateMessage(message, errorLog);
+  //
+  //   if(errorLog.length !== 0)
+  //     return new ServerResponse(null, errorLog);
+  //
+  //   // If the message is sent to the General Chat.
+  //   if(participant === TextHandler.SERVER_CHARACTER) {
+  //     this.generalChatMessages.push(message);
+  //
+  //     for(let vKey in this.users)
+  //       this.users[vKey].storeMessage(message, TextHandler.SERVER_CHARACTER);
+  //
+  //     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+  //   }
+  //
+  //   // Find the recipient.
+  //   let recipientKey = this.findValidtionKey(participant);
+  //
+  //   if(!recipientKey)
+  //     return UserLog.USERNAME_NOT_FOUND_ERROR;
+  //
+  //   // Send the message.
+  //   this.users[recipientKey].storeMessage(message, message.sender);
+  //   this.users[senderKey].storeMessage(message, participant);
+  //
+  //   return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+  // }
 
   // *******
 
@@ -299,7 +378,7 @@ class UserLog {
 
     // Validate the Characters of the Username.
     if(errorLog.length === 0)
-      TextHandler.validateUsernameText(username, errorLog);
+      TextHandler.validateNameText(username, errorLog);
 
     return errorLog;
   }

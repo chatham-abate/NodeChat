@@ -1,19 +1,37 @@
 
 
+/**
+ * This is the Conversation Datastructure.
+ * This will store all relevant data for a single Conversation.
+ * This makes sure  the entire history of a group chat is only stored once.
+ */
 class Conversation {
-  constructor() {
+  constructor(name, owner) {
     this.unreadLog = {};
-
     this.fullLog = [];
+
+    this.name = name;
+
+    this.owners = new Set([owner]);
   }
 
-  join(username) {
-    this.unreadLog[username]= [];
+  promote(username) {
+    if(!(username in this.unreadLog))
+      return false;
+
+    if(!this.owners.has(username))
+      this.owners.add(username);
+
+    return true;
+  }
+
+  addUser(username) {
+    this.unreadLog[username] = [];
   }
 
   store(message) {
     for(let username in this.unreadLog)
-      this.unreadLog.push(message);
+      this.unreadLog[username].push(message);
 
     this.fullLog.push(message);
   }
@@ -35,3 +53,5 @@ class Conversation {
     return this.unreadLog[username].length;
   }
 }
+
+module.exports.Conversation = Conversation;

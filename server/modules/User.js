@@ -21,9 +21,35 @@ class User {
     this.username = username;
     this.password = password;
 
+    this.conversations = {};
+
     this.generalUnread = [];
 
     this.privateLogs = {};
+  }
+
+  joinConversation(conversationKey, conversation) {
+    conversaton.addUser(this.userame);
+    this.conversations[conversationKey] = conversation;
+  }
+
+  readConversation(conversationKey) {
+    this.conversations[]
+  }
+
+  get conversationMap(){
+    let map = {};
+
+    for(let cKey in this.conversations) {
+      let convo = this.conversations[cKey];
+
+      map[cKey] = {
+        unreadLength : convo.getUnreadLength(this.username),
+        name : convo.name
+      };
+    }
+
+    return map;
   }
 
 

@@ -18,6 +18,7 @@ class TextHandler {
       errorLog.push(MESSAGE_LENGTH_ERROR);
   }
 
+
   /**
    * Validate a Username's Text.
    * All errors found will be pushed onto the given error log.
@@ -27,19 +28,19 @@ class TextHandler {
    * @param  {Array} errorLog
    *  The Error Log.
    */
-  static validateUsernameText(username, errorLog) {
-    const USERNAME_LENGTH_ERROR = "Invalid Username Length";
-    const MIN_USERNAME_LENGTH = 4;
+  static validateNameText(name, errorLog) {
+    const NAME_LENGTH_ERROR = "Invalid Name Length";
+    const MIN_NAME_LENGTH = 4;
 
     // Check Length
-    if(username.length < TextHandler.MIN_USERNAME_LENGTH) {
-      errorLog.push(TextHandler.USERNAME_LENGTH_ERROR);
+    if(name.length < MIN_NAME_LENGTH) {
+      errorLog.push(NAME_LENGTH_ERROR);
       return;
     }
 
     // Validate Text
-    this.validateFullUsername(username, errorLog);
-    this.validateStartingCharacter(username, errorLog);
+    this.validateFullName(name, errorLog);
+    this.validateStartingCharacter(name, errorLog);
   }
 
 
@@ -51,13 +52,13 @@ class TextHandler {
    * @param  {Array} errorLog
    *  The Error Log.
    */
-  static validateStartingCharacter(username, errorLog) {
-    const PREFIX_ERROR  = "Invalid Username Starting Character";
+  static validateStartingCharacter(name, errorLog) {
+    const PREFIX_ERROR  = "Invalid Name Starting Character";
 
     const START_CHARACTER_RANGES = [['a', 'z'], ['A', 'Z']];
 
     // Check starting character.
-    if(!this.testCharacter(username.charAt(0), START_CHARACTER_RANGES))
+    if(!this.testCharacter(name.charAt(0), START_CHARACTER_RANGES))
       errorLog.push(PREFIX_ERROR);
   }
 
@@ -70,15 +71,15 @@ class TextHandler {
    * @param  {Array} errorLog
    *  The Error Log.
    */
-  static validateFullUsername(username, errorLog) {
-    const SYMBOL_ERROR = "Invalid Username Character(s)";
+  static validateFullName(name, errorLog) {
+    const SYMBOL_ERROR = "Invalid Name Character(s)";
 
-    const USERNAME_CHARACTER_RANGES = [['a', 'z'], ['A', 'Z'],
+    const NAME_CHARACTER_RANGES = [['a', 'z'], ['A', 'Z'],
                                        ['0', '9'], ['_', '_']];
 
     // Check each character.
-    for(let character of username)
-      if(!this.testCharacter(character, USERNAME_CHARACTER_RANGES)) {
+    for(let character of name)
+      if(!this.testCharacter(character, NAME_CHARACTER_RANGES)) {
         errorLog.push(SYMBOL_ERROR);
         return;
       }
