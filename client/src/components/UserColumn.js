@@ -7,7 +7,7 @@ class UserColumn extends Component {
     super();
 
     this.state = {
-      users : {}
+      conversations : {}
     };
   }
 
@@ -16,21 +16,22 @@ class UserColumn extends Component {
   }
 
   update() {
-    Fetcher.fetchJSON("/api/getUserMap",
+    Fetcher.fetchJSON("/api/conversationMap",
       {validationKey : this.props.validationKey()},
-      json => this.setState({users : json.body}));
+      json => this.setState({conversations : json.body}));
   }
 
   render() {
+
     return (
       <div className = "color-primary-4 userColumn">
-        {Object.keys(this.state.users).map((username) => {
+        {Object.keys(this.state.conversations).map((conversationKey) => {
           return (
-            <div key = {username}
-              onClick = {() => this.props.switchAddress(username)}
+            <div key = {conversationKey}
+              onClick = {() => this.props.switchAddress(conversationKey)}
               className = {"clickable button " +
-                (this.state.users[username] > 0 ? "unread" : "") }>
-              {username}
+                (this.state.conversations[conversationKey].unreadLength > 0 ? "unread" : "") }>
+              {this.state.conversations[conversationKey].name}
             </div>
           );
         })}

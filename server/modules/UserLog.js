@@ -2,6 +2,7 @@ const User = require("./User").User;
 const TextHandler = require("./TextHandler").TextHandler;
 const ServerResponse = require("./ServerResponse").ServerResponse;
 const Message = require("./Message").Message;
+const Conversation = require("./Conversation").Conversation;
 
 
 /**
@@ -20,15 +21,30 @@ class UserLog {
     return new ServerResponse(null, ["Username Not Found"]);
   }
 
+  static get VALIDATION_ERROR() {
+    return new ServerResponse(null, ["Cannot Validate Action"]);
+  }
+
+  static get GENERAL_CHAT_NAME() {
+    return "General";
+  }
+
+  static get GENERAL_CHAT_KEY() {
+    return "~";
+  }
+
   /**
    * Constructor
    */
   constructor() {
+
     this.users = {}
 
+    // Initialize the General Chat
     this.conversations = {};
 
-    this.generalChatMessages = [];
+    this.conversations[UserLog.GENERAL_CHAT_KEY] =
+      new Conversation(UserLog.GENERAL_CHAT_NAME, UserLog.GENERAL_CHAT_KEY);
   }
 
 
@@ -79,13 +95,19 @@ class UserLog {
    *  The Response to send to the Client.
    */
   validate(validationKey, callback) {
-    const VALIDATION_ERROR = "Invalid Validation Key";
-
     // Check the Validation Key.
     if(validationKey in this.users)
       return callback(validationKey);
 
-    return new ServerResponse(null, [VALIDATION_ERROR]);
+    return UserLog.VALIDATION_ERROR;
+  }
+
+  validateConversation(validationKey, conversationKey, callback) {
+    if(validationKey in this.users
+      && conversationKey in this.users[validationKey].conversations)
+      return callback(validationKey, conversationKey);
+
+    return UserLog.VALIDATION_ERROR;
   }
 
   // Messaging V2
@@ -153,6 +175,8 @@ class UserLog {
       return new ServerResponse(null, errorLog);
 
     conversation.store(message);
+
+    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 
   readConversation(validationKey, conversationKey) {
@@ -163,167 +187,42 @@ class UserLog {
   }
 
   getConversationMap(validationKey) {
-    return this.users[validationKey].conversationMap;
+    return new ServerResponse(this.users[validationKey].conversationMap);
   }
 
-  loadConversationHistory(conversationKey, endIndex) {
-    
+  loadConversationHistory(validationKey, conversationKey, endIndex) {
+    const CHUNK_LENGTH = 20;
+    const END_INDEX_ERROR = "Invalid Index";
+
+    let conversation = this.conversations[conversationKey];
+    conversation.read(this.users[validationKey].username);
+
+    if(endIndex === null)
+      endIndex = conversation.fullLog.length;
+    else if(endIndex > conversation.fullLog.length)
+      return new ServerResponse(null, [END_INDEX_ERROR]);
+
+    let startIndex = endIndex - CHUNK_LENGTH;
+
+    if(startIndex < 0)
+      startIndex = 0;
+
+    let messages = [];
+
+    for(let i = startIndex; i < conversation.fullLog.length; i++)
+      messages.push(conversation.fullLog[i]);
+
+    let body = {
+      messages : messages,
+      startIndex : startIndex
+    };
+
+    return new ServerResponse(body);
   }
 
   // *****
 
-  // MESSAGNG V1
 
-  /**
-   * Retrieve a User's unread Messages.
-   *
-   * @param  {string} validationKey
-   *  The Validation Key of the desired User.
-   * @param {string} participant
-   *
-   * @return {ServerResponse}
-   *  The Response to send back to the client.
-   */
-  // readMessages(validationKey, participant) {
-  //   return new ServerResponse(
-  //     this.users[validationKey].readMessages(participant));
-  // }
-
-
-  /**
-   * Retrieve the Unread Message Length Username Map for a given User.
-   * The map returned, will map usernames
-   * to the number of unread messages from that given user.
-   *
-   * @param  {string} validationKey [
-   *  The Validation Key of the User.
-   *
-   * @return {ServerResponse}
-   *  The map of usernames to numbers.
-   */
-  usernameMap(validationKey) {
-    let user = this.users[validationKey];
-
-    // Get the Message Map.
-    let map = user.messageMap;
-
-    // Fill the Map with unrepresented Users.
-    for(let userKey in this.users) {
-      let username = this.users[userKey].username;
-
-      if(username !== user.username && !(username in map)) {
-        map[username] = 0;
-      }
-    }
-
-    return new ServerResponse(map);
-  }
-
-
-  /**
-   * Load Historical Messages of a specific User.
-   *
-   * @param  {string} validationKey
-   *  The Validation Key of the desired User.
-   * @param  {number} startIndex
-   *  The Starting Index of the Message Chunk.
-   *  The message Chunk wll actually back track from the Start Index,
-   *  easier to be considered as an Ending Index.
-   *  If Start Index is null, the latest Message Chunk will be returned.
-   * @param  {string} participant
-   *  The Name of the desired participant.
-   *  i/e a Username or the Server Character (~).
-   *
-   * @return {ServerResponse}
-   *  The response containng the Array of old Messages.
-   */
-  loadHistory(validationKey, startIndex, participant) {
-    // Find the participant.
-    if(this.findValidtionKey(participant) === null
-      && participant !== TextHandler.SERVER_CHARACTER)
-      return this.USERNAME_NOT_FOUND_ERROR;
-
-    const CHUNK_LENGTH = 20;
-
-    let user = this.users[validationKey];
-
-    // Make sure no messages can be returned twice.
-    // Reading the Messages before returning them prevents this.
-    user.readMessages(participant);
-
-    let messageArray = participant === TextHandler.SERVER_CHARACTER
-      ? this.generalChatMessages
-      : user.allPrivateMessages(participant);
-
-    let responseArray = [];
-
-    let startInd = startIndex ? startIndex : messageArray.length;
-
-    // Back Track.
-    startInd -= CHUNK_LENGTH;
-
-    if(startInd < 0)
-      startInd = 0;
-
-    // Load the Chunk.
-    for(let i = startInd; i < messageArray.length; i++)
-      responseArray.push(messageArray[i]);
-
-    let body = {
-      messages : responseArray,
-      startIndex : startInd
-    };
-
-    return new ServerResponse(body)
-  }
-
-
-  /**
-   * Send a Message.
-   *
-   * @param  {string} senderKey
-   *  The Validation Key of the Sender.
-   * @param  {Message} message
-   *  The Message.
-   * @param  {string} participant
-   *  The name of the participant.
-   *
-   * @return {ServerResponse}
-   *  An Empty Success Response, if there are no errors.
-   */
-  // sendMessage(senderKey, message, participant) {
-  //   let errorLog = [];
-  //
-  //   // Validate the message.
-  //   TextHandler.validateMessage(message, errorLog);
-  //
-  //   if(errorLog.length !== 0)
-  //     return new ServerResponse(null, errorLog);
-  //
-  //   // If the message is sent to the General Chat.
-  //   if(participant === TextHandler.SERVER_CHARACTER) {
-  //     this.generalChatMessages.push(message);
-  //
-  //     for(let vKey in this.users)
-  //       this.users[vKey].storeMessage(message, TextHandler.SERVER_CHARACTER);
-  //
-  //     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
-  //   }
-  //
-  //   // Find the recipient.
-  //   let recipientKey = this.findValidtionKey(participant);
-  //
-  //   if(!recipientKey)
-  //     return UserLog.USERNAME_NOT_FOUND_ERROR;
-  //
-  //   // Send the message.
-  //   this.users[recipientKey].storeMessage(message, message.sender);
-  //   this.users[senderKey].storeMessage(message, participant);
-  //
-  //   return ServerResponse.EMPTY_SUCCESS_RESPONSE;
-  // }
-
-  // *******
 
   /**
    * Find the Validation Key of User.
@@ -412,6 +311,9 @@ class UserLog {
     } while(validationKey in this.users);
 
     this.users[validationKey] = new User(username, password);
+
+    this.users[validationKey].joinConversation(
+        UserLog.GENERAL_CHAT_KEY, this.conversations[UserLog.GENERAL_CHAT_KEY]);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }

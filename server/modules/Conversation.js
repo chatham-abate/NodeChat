@@ -6,6 +6,7 @@
  * This makes sure  the entire history of a group chat is only stored once.
  */
 class Conversation {
+
   constructor(name, owner) {
     this.unreadLog = {};
     this.fullLog = [];
@@ -38,7 +39,7 @@ class Conversation {
 
   read(username) {
     if(!(username in this.unreadLog))
-      return null;
+      return [];
 
     let unread = this.unreadLog[username];
     this.unreadLog[username] = [];

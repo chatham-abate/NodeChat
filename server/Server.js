@@ -30,49 +30,43 @@ app.post("/api/login", (req, res) => {
   res.json(log.login(req.body.username, req.body.password));
 });
 
-// Retrieve the Username Mapping for a specific User.
-// valdationKey REQUIRED
-// The Username Mappng will map each username on the server to the number
-// of unread messages sent from that username to the the given User.
-app.post("/api/getUserMap", (req, res) => {
-  res.json(log.validate(req.body.validationKey, (validationKey) => {
-    return log.usernameMap(validationKey);
-  }));
+// V2 Messaging
+
+app.post("/api/conversationMap", (req, res) => {
+  res.json(log.validate(req.body.validationKey,
+    validationKey => log.getConversationMap(validationKey)));
 });
 
-// Send A Message.
-// validationKey, messageText, participant REQUIRED.
-// Use participant name ~ to send to the General Chat.
-// If no errors, an Empty Success Response will be returned.
-app.post("/api/send", (req, res) => {
-  res.json(log.validate(req.body.validationKey, (validationKey) => {
-    let message = new Message(req.body.messageText,
-      log.getUsername(validationKey));
+app.post("/api/sendToConversation", (req, res) => {
+  res.json(
+    log.validateConversation(req.body.validationKey, req.body.conversationKey,
+      (validationKey, conversationKey) => {
+        let msg = new Message(req.body.text, log.getUsername(validationKey));
 
-    return log.sendMessage(validationKey, message, req.body.participant);
-  }));
+        return log.sendMessage(msg, conversationKey);
+      }
+    )
+  );
 });
 
-// Read Unread messages.
-// validationKey, participant REQUIRED
-// Use participant value ~ to read General Chat messages.
-// All unread messages from the given participant will be sent to the Client.
-app.post("/api/read", (req, res) => {
-  res.json(log.validate(req.body.validationKey, (validationKey) => {
-    return log.readMessages(validationKey, req.body.participant);
-  }));
+app.post("/api/readConversation", (req, res) => {
+  res.json(
+    log.validateConversation(req.body.validationKey, req.body.conversationKey,
+      (validationKey, conversationKey) =>
+        log.readConversation(validationKey, conversationKey)
+    )
+  );
 });
 
-// Load Historic Messages.
-// validationKey, participant REQUIRED.
-// startIndex Optional.
-// Loading will send chunks of messages to the Client.
-// If no startIndex of given, the latest chunk of messages will be sent.
-app.post("/api/load", (req, res) => {
-  res.json(log.validate(req.body.validationKey, (validationKey) => {
-    return log.loadHistory(validationKey, req.body.startIndex, req.body.participant);
-  }));
-})
+app.post("/api/loadConversation", (req, res) => {
+  res.json(
+    log.validateConversation(req.body.validationKey, req.body.conversationKey,
+      (validationKey, conversationKey) =>
+        log.loadConversationHistory(
+          validationKey, conversationKey, req.body.endIndex)
+    )
+  );
+});
 
 const port = 5000;
 

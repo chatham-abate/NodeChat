@@ -25,25 +25,26 @@ class AddressPane extends Component {
   loadHistory(scroll) {
     let body = {
       validationKey : this.props.validationKey(),
-      startIndex : this.state.startIndex,
-      participant : this.state.address
+      endIndex : this.state.startIndex,
+      conversationKey : this.state.address
     };
 
     let callback = scroll ? this.scrollToBottom.bind(this) : (() => {});
 
-    Fetcher.fetchJSON("/api/load", body, json => this.setState(json.body, callback));
+    Fetcher.fetchJSON("/api/loadConversation", body, json => this.setState(json.body, callback));
   }
 
   update() {
     let body = {
       validationKey : this.props.validationKey(),
-      participant : this.state.address
+      conversationKey : this.state.address
     };
 
-    Fetcher.fetchJSON("/api/read", body, this.parseUpdate.bind(this));
+    Fetcher.fetchJSON("/api/readConversation", body, this.parseUpdate.bind(this));
   }
 
   parseUpdate(response) {
+    console.log(response);
     if(response.body.length === 0 || response.errors.length > 0)
       return;
 
@@ -63,13 +64,13 @@ class AddressPane extends Component {
   deliver() {
     let body = {
       validationKey : this.props.validationKey(),
-      messageText : this.refs.message.value,
-      participant : this.state.address
+      text : this.refs.message.value,
+      conversationKey : this.state.address
     };
 
     this.refs.message.value = "";
 
-    Fetcher.fetchJSON("/api/send", body, this.handleResponse.bind(this));
+    Fetcher.fetchJSON("/api/sendToConversation", body, this.handleResponse.bind(this));
   }
 
   handleResponse(response) {
