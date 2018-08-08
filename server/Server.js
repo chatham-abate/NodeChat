@@ -40,8 +40,10 @@ app.post("/api/getUserMap", (req, res) => {
   }));
 });
 
-// Send A Message
-// validationKey, messageText, recipientUsername REQUIRED
+// Send A Message.
+// validationKey, messageText, participant REQUIRED.
+// Use participant name ~ to send to the General Chat.
+// If no errors, an Empty Success Response will be returned.
 app.post("/api/send", (req, res) => {
   res.json(log.validate(req.body.validationKey, (validationKey) => {
     let message = new Message(req.body.messageText,
@@ -53,13 +55,19 @@ app.post("/api/send", (req, res) => {
 
 // Read Unread messages.
 // validationKey, participant REQUIRED
+// Use participant value ~ to read General Chat messages.
+// All unread messages from the given participant will be sent to the Client.
 app.post("/api/read", (req, res) => {
   res.json(log.validate(req.body.validationKey, (validationKey) => {
     return log.readMessages(validationKey, req.body.participant);
   }));
 });
 
-// Load Historic Messages
+// Load Historic Messages.
+// validationKey, participant REQUIRED.
+// startIndex Optional.
+// Loading will send chunks of messages to the Client.
+// If no startIndex of given, the latest chunk of messages will be sent.
 app.post("/api/load", (req, res) => {
   res.json(log.validate(req.body.validationKey, (validationKey) => {
     return log.loadHistory(validationKey, req.body.startIndex, req.body.participant);
