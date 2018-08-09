@@ -28,16 +28,23 @@ class User {
     this.conversations[conversationKey] = conversation;
   }
 
+  exitConversation(conversationKey) {
+    if(!(conversationKey in this.conversations))
+      return false;
+
+    this.conversations.removeUser(this.username);
+    delete this.conversations[conversationKey];
+
+    return true;
+  }
+
   get conversationMap(){
     let map = {};
 
     for(let cKey in this.conversations) {
       let convo = this.conversations[cKey];
 
-      map[cKey] = {
-        unreadLength : convo.getUnreadLength(this.username),
-        name : convo.name
-      };
+      map[cKey] = convo.getMapEntry(this.username);
     }
 
     return map;

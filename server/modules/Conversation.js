@@ -7,13 +7,39 @@
  */
 class Conversation {
 
-  constructor(name, owner) {
+  constructor(owner, name, isPublic = true) {
     this.unreadLog = {};
     this.fullLog = [];
 
+    this.isPublic = isPublic;
     this.name = name;
 
     this.owners = new Set([owner]);
+  }
+
+  get displayName() {
+    if(this.name)
+      return this.name;
+
+    let displayName = "";
+
+    for(let member in this.unreadLog)
+      displayName += member + ",";
+
+    return displayName.substring(0, displayName.length-1);
+  }
+
+  get membersArray() {
+    let array = [];
+
+    for(let member in this.unreadLog)
+      array.push(member);
+
+    return array;
+  }
+
+  isPermitted(username) {
+    return this.owners.has(username);
   }
 
   promote(username) {
@@ -28,6 +54,15 @@ class Conversation {
 
   addUser(username) {
     this.unreadLog[username] = [];
+  }
+
+  removeUser(username) {
+    if(!(username in this.unreadLog))
+      return false;
+
+    delete this.unreadLog[username];
+
+    return true;
   }
 
   store(message) {
@@ -47,11 +82,15 @@ class Conversation {
     return unread;
   }
 
-  getUnreadLength(username) {
+  getMapEntry(username) {
     if(!(username in this.unreadLog))
-      return 0;
+      return {};
 
-    return this.unreadLog[username].length;
+    return {
+      unreadLength : this.unreadLog[username].length,
+      name : this.displayName,
+      isPublic : this.isPublic
+    };
   }
 }
 

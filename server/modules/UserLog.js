@@ -21,10 +21,6 @@ class UserLog {
     return new ServerResponse(null, ["Username Not Found"]);
   }
 
-  static get VALIDATION_ERROR() {
-    return new ServerResponse(null, ["Cannot Validate Action"]);
-  }
-
   static get GENERAL_CHAT_NAME() {
     return "General";
   }
@@ -37,14 +33,13 @@ class UserLog {
    * Constructor
    */
   constructor() {
-
     this.users = {}
 
-    // Initialize the General Chat
-    this.conversations = {};
+    this.publics = {};
+    this.privates = {};
 
-    this.conversations[UserLog.GENERAL_CHAT_KEY] =
-      new Conversation(UserLog.GENERAL_CHAT_NAME, UserLog.GENERAL_CHAT_KEY);
+    this.publics[UserLog.GENERAL_CHAT_KEY] =
+      new Conversation(UserLog.GENERAL_CHAT_KEY, UserLog.GENERAL_CHAT_NAME);
   }
 
 
@@ -95,19 +90,37 @@ class UserLog {
    *  The Response to send to the Client.
    */
   validate(validationKey, callback) {
+    const VALIDATION_ERROR = "Invalid Validation Key";
+
     // Check the Validation Key.
     if(validationKey in this.users)
       return callback(validationKey);
 
-    return UserLog.VALIDATION_ERROR;
+    return new ServerResponse(null, [VALIDATION_ERROR]);
   }
 
   validateConversation(validationKey, conversationKey, callback) {
-    if(validationKey in this.users
-      && conversationKey in this.users[validationKey].conversations)
-      return callback(validationKey, conversationKey);
+    const CONVERSATION_VALIDATION_ERROR = "Invalid Conversation Key";
 
-    return UserLog.VALIDATION_ERROR;
+    return this.validate(validationKey, (validationKey) => {
+      if(conversationKey in this.users[validationKey].conversations)
+        return callback(validationKey, conversationKey);
+
+      return new ServerResponse(null, [CONVERSATION_VALIDATION_ERROR]);
+    });
+  }
+
+  validatePermissions(validationKey, conversationKey, callback) {
+    const INVALID_PERMISSION_ERROR = "Invalid Permissions";
+
+    return this.validateConversation(validationKey, conversationKey,
+      (validationKey, conversationKey) => {
+        let user = this.users[validationKey];
+        if(user.conversations[conversationKey].isPermitted(user.username))
+          return callback(validationKey, conversationKey);
+
+        return new ServerResponse(null, [INVALID_PERMISSION_ERROR]);
+      });
   }
 
   // Messaging V2
@@ -119,37 +132,33 @@ class UserLog {
   //
   // Should Conversations have Keys?
 
-  createConversation(username, name) {
-    const CONVERSATION_NAME_TAKEN = "Conversation Name Taken";
-
-    let errorLog = [];
-    TextHandler.validateNameText(name, errorLog);
+  createConversation(validationKey, name, isPublic = true) {
+    let errorLog = this.conversationNameErrorLog(name, isPublic);
 
     if(errorLog.length !== 0)
       return new ServerResponse(null, errorLog);
 
-    for(let cKey in this.conversations)
-      if(this.conversations[cKey].name === name)
-        return new ServerResponse(null, [CONVERSATION_NAME_TAKEN]);
-
-    let newConvo = new Conversation(name, this.users[validationKey].username);
+    let newConvo =
+      new Conversation(this.users[validationKey].username, name, isPublic);
 
     let conversationKey = "";
 
     do {
       conversationKey = TextHandler.generateKey();
-    } while(conversationKey in this.conversations);
+    } while(this.findConversation(conversationKey) !== null);
 
-    this.conversations[convesationKey] = newConvo;
+    let location = isPublic ? this.publics : this.privates;
+    location[convesationKey] = newConvo;
+
     this.users[validationKey].joinConversation(conversationKey, newConvo);
 
     return new ServerResponse({conversationKey : conversationKey});
   }
 
   addUser(userame, conversationKey) {
-    const USER_ALREADY_ERROR = "User Already in Conversation";
+    const USER_ALREADY_ERROR = "User Already In Conversation";
 
-    let conversation = this.conversations[conversationKey];
+    let conversation = this.findConversation(conversationKey);
 
     let userKey = this.findValidtionKey(username);
 
@@ -165,8 +174,28 @@ class UserLog {
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 
+  exitConversation(validationKey, conversationKey) {
+    this.users[validationKey].exitConversation(conversationKey);
+
+    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+  }
+
+  removeUser(username, conversationKey) {
+    const NOT_IN_CONVO_ERROR = "User Not In Conversation";
+
+    let validationKey = this.findValidtionKey(username);
+
+    if(!validationKey)
+      return UserLog.USERNAME_NOT_FOUND_ERROR;
+
+    if(this.users[validationKey].exitConversation(conversationKey))
+      return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+
+    return new ServerResponse(null, [NOT_IN_CONVO_ERROR]);
+  }
+
   sendMessage(message, conversationKey) {
-    let conversation = this.conversations[conversationKey];
+    let conversation = this.findConversation(conversationKey);
 
     let errorLog = [];
     TextHandler.validateMessage(message, errorLog);
@@ -180,7 +209,7 @@ class UserLog {
   }
 
   readConversation(validationKey, conversationKey) {
-    let conversation = this.conversations[conversationKey];
+    let conversation = this.findConversation(conversationKey);
     let user = this.users[validationKey];
 
     return new ServerResponse(conversation.read(user.username));
@@ -194,7 +223,7 @@ class UserLog {
     const CHUNK_LENGTH = 20;
     const END_INDEX_ERROR = "Invalid Index";
 
-    let conversation = this.conversations[conversationKey];
+    let conversation = this.findConversation(conversationKey);
     conversation.read(this.users[validationKey].username);
 
     if(endIndex === null)
@@ -221,8 +250,6 @@ class UserLog {
   }
 
   // *****
-
-
 
   /**
    * Find the Validation Key of User.
@@ -256,6 +283,16 @@ class UserLog {
     return this.users[validationKey].username;
   }
 
+  findConversation(conversationKey) {
+    if(conversationKey in this.privates)
+      return this.privates[conversationKey];
+
+    if(conversationKey in this.publics)
+      return this.publics[conversationKey];
+
+    return null;
+  }
+
 
   /**
    * Test a Username for Errors.
@@ -271,13 +308,30 @@ class UserLog {
 
     const NAME_TAKEN_ERROR = "Username Already Taken";
 
+    TextHandler.validateNameText(username, errorLog);
+
     // Check if the Name is taken.
-    if(this.findValidtionKey(username))
+    if(errorLog.length === 0 && this.findValidtionKey(username))
       errorLog.push(NAME_TAKEN_ERROR);
 
-    // Validate the Characters of the Username.
-    if(errorLog.length === 0)
-      TextHandler.validateNameText(username, errorLog);
+    return errorLog;
+  }
+
+
+  conversationNameErrorLog(name, isPublic) {
+    let errorLog = [];
+
+    const CONVO_NAME_TAKEN = "Conversation Name Taken";
+
+    TextHandler.validateNameText(name, errorLog);
+
+    if(errorLog.length === 0 && isPublic) {
+      for(let conversation in this.publics)
+        if(conversation.name === name) {
+          errorLog.push(CONVO_NAME_TAKEN);
+          return errorLog;
+        }
+    }
 
     return errorLog;
   }
@@ -313,7 +367,7 @@ class UserLog {
     this.users[validationKey] = new User(username, password);
 
     this.users[validationKey].joinConversation(
-        UserLog.GENERAL_CHAT_KEY, this.conversations[UserLog.GENERAL_CHAT_KEY]);
+        UserLog.GENERAL_CHAT_KEY, this.publics[UserLog.GENERAL_CHAT_KEY]);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }

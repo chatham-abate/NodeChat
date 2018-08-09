@@ -68,6 +68,40 @@ app.post("/api/loadConversation", (req, res) => {
   );
 });
 
+app.post("/api/createConversation", (req, res) => {
+  res.json(
+    log.validate(req.body.validationKey, (validationKey) => {
+      return
+        log.createConversation(validationKey, req.body.name, req.body.isPublic);
+    })
+  );
+});
+
+app.post("/api/exitConversation", (req, res) => {
+  res.json(
+    log.validateConversation(req.body.validationKey, req.body.conversationKey,
+      log.exitConversation)
+  );
+});
+
+app.post("/api/addUser", (req, res) => {
+  res.json(
+    log.validatePermissions(req.body.validationKey, req.body.conversationKey,
+      (validationKey, conversationKey) => {
+        return log.removeUser(req.body.username, conversationKey);
+      })
+  );
+});
+
+app.post("/api/removeUser", (req, res) => {
+  res.json(
+    log.validatePermissions(req.body.validationKey, req.body.conversationKey,
+      (validationKey, conversationKey) => {
+        return log.addUser(req.body.username, conversationKey);
+      })
+  );
+});
+
 const port = 5000;
 
 app.listen(port, () => `Server running on port ${port}`);
