@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import ClassModifier from "./componentModules/ClassModifier";
+import ClassModifier from "../componentModules/ClassModifier";
 
 /**
  * Input Component.

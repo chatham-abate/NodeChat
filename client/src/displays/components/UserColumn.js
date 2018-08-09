@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Fetcher from './componentModules/Fetcher';
+import Fetcher from '../componentModules/Fetcher';
 
 class UserColumn extends Component {
 
@@ -31,6 +31,11 @@ class UserColumn extends Component {
   render() {
     return (
       <div className = "color-primary-4 userColumn">
+        <div ref = "settingsButton"
+          className = "clickable button"
+          onClick = {() => this.props.switchDisplay("settings")}>
+          Settings
+        </div>
         {Object.keys(this.state.conversations).map((conversationKey) => {
           return (
             <div key = {conversationKey}

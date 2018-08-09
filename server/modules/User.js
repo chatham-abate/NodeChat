@@ -38,13 +38,13 @@ class User {
     return true;
   }
 
-  get conversationMap(){
+  conversationMap(withUsers) {
     let map = {};
 
     for(let cKey in this.conversations) {
       let convo = this.conversations[cKey];
 
-      map[cKey] = convo.getMapEntry(this.username);
+      map[cKey] = convo.getMapEntry(this.username, withUsers);
     }
 
     return map;

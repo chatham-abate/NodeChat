@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import UserColumn from './UserColumn';
-import AddressPane from './AddressPane';
+import UserColumn from './components/UserColumn';
+import AddressPane from './components/AddressPane';
 
 class ChatDisplay extends Component {
 
@@ -39,6 +39,7 @@ class ChatDisplay extends Component {
           initialAddress = {this.props.initialAddress}
           validationKey = {this.props.validationKey} />
         <UserColumn ref = "userColumn"
+          switchDisplay = {this.props.switchDisplay}
           switchAddress = {this.switchAddress.bind(this)}
           initialAddress = {this.props.initialAddress}
           validationKey = {this.props.validationKey} />

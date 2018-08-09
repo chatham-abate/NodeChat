@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-import Log from './Log';
-import FormInput from './FormInput';
+import Log from './components/Log';
+import FormInput from './components/FormInput';
 import Fetcher from './componentModules/Fetcher';
 
 /**

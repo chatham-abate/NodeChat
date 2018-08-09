@@ -133,10 +133,15 @@ class UserLog {
   // Should Conversations have Keys?
 
   createConversation(validationKey, name, isPublic = true) {
-    let errorLog = this.conversationNameErrorLog(name, isPublic);
+    const PUBLIC_CONVO_ERROR = "Public Conversations Require a Name";
 
-    if(errorLog.length !== 0)
-      return new ServerResponse(null, errorLog);
+    if(name) {
+      let errorLog = this.conversationNameErrorLog(name, isPublic);
+
+      if(errorLog.length !== 0)
+        return new ServerResponse(null, errorLog);
+    } else if(isPublic)
+      return new ServerResponse(null, [PUBLIC_CONVO_ERROR]);
 
     let newConvo =
       new Conversation(this.users[validationKey].username, name, isPublic);
@@ -216,7 +221,27 @@ class UserLog {
   }
 
   getConversationMap(validationKey) {
-    return new ServerResponse(this.users[validationKey].conversationMap);
+    return new ServerResponse(this.users[validationKey].conversationMap(false));
+  }
+
+  getServerMap(validationKey) {
+    let usernames = [];
+
+    for(let vKey in this.users)
+      usernames.push(this.users[vKey].username);
+
+    let publicChats = [];
+
+    for(let cKey in this.publics)
+      publicChats.push(this.publics[cKey].displayName);
+
+    let body = {
+      conversations : this.users[validationKey].conversationMap(true),
+      users : usernames,
+      publics : publicChats
+    };
+
+    return new ServerResponse(body);
   }
 
   loadConversationHistory(validationKey, conversationKey, endIndex) {

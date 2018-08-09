@@ -32,9 +32,13 @@ app.post("/api/login", (req, res) => {
 
 // V2 Messaging
 
+app.post("/api/serverMap", (req, res) => {
+  res.json(log.validate(req.body.validationKey, log.getServerMap.bind(log)));
+});
+
 app.post("/api/conversationMap", (req, res) => {
   res.json(log.validate(req.body.validationKey,
-    validationKey => log.getConversationMap(validationKey)));
+    log.getConversationMap.bind(log)));
 });
 
 app.post("/api/sendToConversation", (req, res) => {
@@ -52,8 +56,7 @@ app.post("/api/sendToConversation", (req, res) => {
 app.post("/api/readConversation", (req, res) => {
   res.json(
     log.validateConversation(req.body.validationKey, req.body.conversationKey,
-      (validationKey, conversationKey) =>
-        log.readConversation(validationKey, conversationKey)
+        log.readConversation.bind(log)
     )
   );
 });
@@ -70,35 +73,34 @@ app.post("/api/loadConversation", (req, res) => {
 
 app.post("/api/createConversation", (req, res) => {
   res.json(
-    log.validate(req.body.validationKey, (validationKey) => {
-      return
-        log.createConversation(validationKey, req.body.name, req.body.isPublic);
-    })
+    log.validate(req.body.validationKey, (validationKey) =>
+        log.createConversation(validationKey, req.body.name, req.body.isPublic)
+    )
   );
 });
 
 app.post("/api/exitConversation", (req, res) => {
   res.json(
     log.validateConversation(req.body.validationKey, req.body.conversationKey,
-      log.exitConversation)
+      log.exitConversation.bind(log))
   );
 });
 
 app.post("/api/addUser", (req, res) => {
   res.json(
     log.validatePermissions(req.body.validationKey, req.body.conversationKey,
-      (validationKey, conversationKey) => {
-        return log.removeUser(req.body.username, conversationKey);
-      })
+      (validationKey, conversationKey) =>
+        log.addUser(req.body.username, conversationKey)
+      )
   );
 });
 
 app.post("/api/removeUser", (req, res) => {
   res.json(
     log.validatePermissions(req.body.validationKey, req.body.conversationKey,
-      (validationKey, conversationKey) => {
-        return log.addUser(req.body.username, conversationKey);
-      })
+      (validationKey, conversationKey) =>
+        log.removeUser(req.body.username, conversationKey)
+      )
   );
 });
 

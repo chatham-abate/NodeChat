@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Fetcher from './componentModules/Fetcher';
+import Fetcher from '../componentModules/Fetcher';
 import Message from './Message';
 
 class AddressPane extends Component {
@@ -44,7 +44,6 @@ class AddressPane extends Component {
   }
 
   parseUpdate(response) {
-    console.log(response);
     if(response.body.length === 0 || response.errors.length > 0)
       return;
 

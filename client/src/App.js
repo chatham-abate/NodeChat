@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 
-import LoginDisplay from './components/LoginDisplay';
-import NewUserDisplay from './components/NewUserDisplay';
-import ChatDisplay from './components/ChatDisplay';
+import LoginDisplay from './displays/LoginDisplay';
+import NewUserDisplay from './displays/NewUserDisplay';
+import ChatDisplay from './displays/ChatDisplay';
+import SettingsDisplay from './displays/SettingsDisplay';
 
 import './componentStyles/genericStyles.css';
 import './componentStyles/inputStyles.css';
@@ -19,6 +20,52 @@ class App extends Component {
       currentDisplay : "",
       displays : {}
     };
+  }
+
+  get settingsDisplay() {
+    return (
+      <SettingsDisplay
+        switchDisplay = {this.switchDisplay.bind(this)}
+        validationKey = {this.validationKey.bind(this)} />
+    );
+  }
+
+  get loginDisplay() {
+    return (
+      <LoginDisplay
+        switchDisplay = {this.switchDisplay.bind(this)}
+        setUsername = {this.setUsername.bind(this)}
+        validate = {this.validate.bind(this)} />
+    );
+  }
+
+  get chatDisplay() {
+    return (
+      <ChatDisplay
+        switchDisplay = {this.switchDisplay.bind(this)}
+        username = {this.username.bind(this)}
+        validationKey = {this.validationKey.bind(this)}
+        initialAddress = "~" />
+    );
+  }
+
+  get newUserDisplay() {
+    return (
+      <NewUserDisplay
+        switchDisplay = {this.switchDisplay.bind(this)} />
+    );
+  }
+
+  componentDidMount() {
+    this.setState({
+      displays : {
+        "login" : this.loginDisplay,
+        "newUser" : this.newUserDisplay,
+        "chat" : this.chatDisplay,
+        "settings" : this.settingsDisplay
+      },
+      currentDisplay : "login"
+    });
   }
 
   switchDisplay(displayName) {
@@ -40,36 +87,6 @@ class App extends Component {
 
   username() {
     return this.state.username;
-  }
-
-  get loginDisplay() {
-    return (<LoginDisplay
-      switchDisplay = {this.switchDisplay.bind(this)}
-      setUsername = {this.setUsername.bind(this)}
-      validate = {this.validate.bind(this)} />);
-  }
-
-  get chatDisplay() {
-    return (<ChatDisplay
-      switchDisplay = {this.switchDisplay.bind(this)}
-      username = {this.username.bind(this)}
-      validationKey = {this.validationKey.bind(this)}
-      initialAddress = "~" />);
-  }
-
-  get newUserDisplay() {
-    return (<NewUserDisplay
-      switchDisplay = {this.switchDisplay.bind(this)} />);
-  }
-
-  componentDidMount() {
-    this.setState({displays : {
-      "login" : this.loginDisplay,
-      "newUser" : this.newUserDisplay,
-      "chat" : this.chatDisplay
-    }});
-
-    this.setState({currentDisplay : "login"});
   }
 
   render() {
