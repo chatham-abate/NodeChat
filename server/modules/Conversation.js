@@ -83,8 +83,9 @@ class Conversation {
   }
 
   getMapEntry(username, withUsers) {
-    let unreadLen = (username in this.unreadLog)
-      ? this.unreadLog[username].length : 0;
+    let joined = (username in this.unreadLog);
+
+    let unreadLen = joined ? this.unreadLog[username].length : 0;
 
     let usernames = withUsers ? Object.keys(this.unreadLog) : [];
 
@@ -92,7 +93,8 @@ class Conversation {
       unreadLength : unreadLen,
       name : this.displayName,
       isPublic : this.isPublic,
-      users : usernames
+      users : usernames,
+      joined : joined
     };
   }
 }

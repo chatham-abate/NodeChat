@@ -31,9 +31,10 @@ class TextHandler {
   static validateNameText(name, errorLog) {
     const NAME_LENGTH_ERROR = "Invalid Name Length";
     const MIN_NAME_LENGTH = 4;
+    const MAX_NAME_LENGTH = 18;
 
     // Check Length
-    if(name.length < MIN_NAME_LENGTH) {
+    if(name.length < MIN_NAME_LENGTH || name.length > MAX_NAME_LENGTH) {
       errorLog.push(NAME_LENGTH_ERROR);
       return;
     }

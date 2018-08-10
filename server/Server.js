@@ -30,16 +30,24 @@ app.post("/api/login", (req, res) => {
   res.json(log.login(req.body.username, req.body.password));
 });
 
-// V2 Messaging
+// Server Data
 
-app.post("/api/serverMap", (req, res) => {
-  res.json(log.validate(req.body.validationKey, log.getServerMap.bind(log)));
+app.post("/api/usersArray", (req, res) => {
+  res.json(log.getUsersArray());
+});
+
+app.post("/api/publicConversationMap", (req, res) => {
+  res.json(log.validate(req.body.validationKey, (validationKey) =>
+    log.getPublicConversationMap(validationKey, req.body.withUsers)));
 });
 
 app.post("/api/conversationMap", (req, res) => {
-  res.json(log.validate(req.body.validationKey,
-    log.getConversationMap.bind(log)));
+ res.json(log.validate(req.body.validationKey, (validationKey) => {
+   return log.getConversationMap(validationKey, req.body.withUsers);
+ }))
 });
+
+// V2 Messaging
 
 app.post("/api/joinConversation", (req, res) => {
   res.json(

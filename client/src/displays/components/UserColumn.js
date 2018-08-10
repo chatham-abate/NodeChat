@@ -18,8 +18,12 @@ class UserColumn extends Component {
   }
 
   update() {
-    Fetcher.fetchJSON("/api/conversationMap",
-      {validationKey : this.props.validationKey()},
+    let body = {
+      validationKey : this.props.validationKey(),
+      withUsers : false
+    };
+
+    Fetcher.fetchJSON("/api/conversationMap", body,
       json => this.setState({conversations : json.body}));
   }
 
@@ -30,20 +34,29 @@ class UserColumn extends Component {
 
   render() {
     return (
-      <div className = "color-primary-4 fixedWidth">
+      <div className = "color-primary-4 column">
         <div ref = "settingsButton"
           className = "clickable button"
           onClick = {() => this.props.switchDisplay("settings")}>
           Settings
         </div>
         {Object.keys(this.state.conversations).map((conversationKey) => {
+          let conversation = this.state.conversations[conversationKey];
+          let convoClass = "clickable button" +
+            (conversation.unreadLength > 0 ? " unread" : "");
+
+          if(this.state.toggledConversation === conversationKey)
+            convoClass += " toggled";
+          else
+            convoClass += (conversation.isPublic
+              ? " color-secondary-2-4"
+              : " color-secondary-1-4");
+
           return (
             <div key = {conversationKey}
               onClick = {() => this.switchAddress(conversationKey)}
-              className = {"clickable button" +
-                (this.state.conversations[conversationKey].unreadLength > 0 ? " unread" : "") +
-                (this.state.toggledConversation === conversationKey ? " toggled" : "")}>
-              {this.state.conversations[conversationKey].name}
+              className = {convoClass}>
+              {conversation.name}
             </div>
           );
         })}

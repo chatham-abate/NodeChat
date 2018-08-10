@@ -32,7 +32,7 @@ class User {
     if(!(conversationKey in this.conversations))
       return false;
 
-    this.conversations.removeUser(this.username);
+    this.conversations[conversationKey].removeUser(this.username);
     delete this.conversations[conversationKey];
 
     return true;

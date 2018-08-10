@@ -1,12 +1,9 @@
 .mainBlock {
   width : 100vw;
   height : 100vh;
-
   background-color: rgb(10,10,10);
-
   font-family: "Courier New", Courier, monospace;
   font-size: .8em;
-
   color: rgb(200,200,200);
 }
 
@@ -23,18 +20,16 @@ b {
   transition-duration: 1s;
 }
 
+.applet {
+  margin: 10vh 10vw;
+}
+
 .centeredText {
   text-align: center;
 }
 
 .centered {
   margin: auto;
-}
-
-.bordered {
-  border-style: solid;
-  border-width: 1px;
-  border-color: grey;
 }
 
 .flexDisplay {
@@ -53,8 +48,10 @@ b {
   flex: 0;
 }
 
-.fixedWidth {
-  width: 100px;
+.column {
+  width: 150px;
+  overflow: scroll;
+  border-right: 1px solid rgba(255,255,255,.6);
 }
 
 .topPadded {
@@ -67,6 +64,10 @@ b {
 
 .lightlyPadded {
   padding: 5px 10px;
+}
+
+.topped {
+  border-top: 1px solid rgba(255,255,255,.2);
 }
 
 .darker {

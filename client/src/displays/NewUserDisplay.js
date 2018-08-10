@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import Log from './components/Log';
+import Logger from './components/Logger';
 import FormInput from './components/FormInput';
 import Fetcher from './componentModules/Fetcher';
 
@@ -36,7 +36,7 @@ class NewUserDisplay extends Component {
     // Test if the passwords match.
     if(password.value !== passwordConfirm.value)
     {
-      this.refs.errorLog.logEntries([UNMATCHED_PW_ERROR]);
+      this.refs.log.logErrors([UNMATCHED_PW_ERROR]);
       return;
     }
 
@@ -58,31 +58,8 @@ class NewUserDisplay extends Component {
    *  The response from the Server.
    */
   handleNewUserResponse(response) {
-    const SUCCESS_MESSAGE = ["Success!", "Return to Home Screen to Login"];
-
-    if(response.errors.length !== 0) {
-      this.refs.errorLog.logEntries(response.errors);
-      this.refs.successLog.clear();
-    }
-    else {
-      this.refs.successLog.logEntries(SUCCESS_MESSAGE);
-      this.refs.errorLog.clear();
-    }
+    this.refs.log.logResponse(response);
   }
-
-
-  /**
-   * Handle a Key Press Event from the Form.
-   *
-   * @param  {Event} e
-   *  The Key Press Event.
-   */
-  handleKeyPress(e) {
-    // Submit Form on Enter.
-    if(e.charCode === 13)
-      this.submitForm();
-  }
-
 
   /**
    * Life Cycle Method for Rendering.
@@ -92,16 +69,14 @@ class NewUserDisplay extends Component {
       <div className = "mainBlock">
         <div className = "topPadded">
           <div className = "color-primary-4 centered form"
-            ref = "form"
-            onKeyPress = {this.handleKeyPress.bind(this)}>
-            <FormInput type = "text"
+            ref = "form">
+            <FormInput type = "text" attempt = {this.submitForm.bind(this)}
               placeholder = "Username" ref = "username" />
-            <FormInput type = "password"
+            <FormInput type = "password" attempt = {this.submitForm.bind(this)}
               placeholder = "Password" ref = "password" />
-            <FormInput type = "password"
+            <FormInput type = "password" attempt = {this.submitForm.bind(this)}
               placeholder = "Confirm Password" ref = "passwordConfirm" />
-            <Log ref = "successLog" />
-            <Log errorLog ref = "errorLog" />
+            <Logger success = "User Created" ref = "log" />
             <div className = "flexDisplay">
               <span
                 className = "clickable button"

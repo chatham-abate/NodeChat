@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Log from './components/Log';
+import Logger from './components/Logger';
 import FormInput from './components/FormInput';
 import Fetcher from './componentModules/Fetcher';
 
@@ -74,26 +74,13 @@ class LoginDisplay extends Component {
 
     // Check for errors.
     if(response.errors.length !== 0)
-      this.refs.errorLog.logEntries(response.errors);
+      this.refs.log.logErrors(response.errors);
     else {
       // Store the Validation Key.
       this.props.validate(response.body);
       this.props.setUsername(this.state.pendingUsername);
       this.props.switchDisplay("chat");
     }
-  }
-
-
-  /**
-   * Handle a Key Press Event from the Form.
-   *
-   * @param  {Event} e
-   *  The Key Press Event.
-   */
-  handleKeyPress(e) {
-    // Submit Form on Enter.
-    if(e.charCode === 13)
-      this.submitForm();
   }
 
 
@@ -105,14 +92,12 @@ class LoginDisplay extends Component {
       <div className = "mainBlock">
         <div className = "topPadded">
           <div className = "color-primary-4 centered form"
-            ref = "form"
-            onKeyPress = {this.handleKeyPress.bind(this)}>
-            <FormInput type = "text"
+            ref = "form">
+            <FormInput type = "text" attempt = {this.submitForm.bind(this)}
               placeholder = "Username" ref = "username" />
-            <FormInput type = "password"
+            <FormInput type = "password" attempt = {this.submitForm.bind(this)}
               placeholder = "Password" ref = "password" />
-            <Log ref = "successLog" />
-            <Log errorLog ref = "errorLog" />
+            <Logger ref = "log" success = "Logging In" />
             <div className = "flexDisplay">
               <span
                 className = "clickable button"

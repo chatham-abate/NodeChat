@@ -20,6 +20,10 @@ class FormInput extends Component {
     return this.refs.field.value;
   }
 
+  set value(value) {
+    this.refs.field.value = value;
+  }
+
 
   /**
    * Check if the field is flagged or not.
@@ -74,6 +78,11 @@ class FormInput extends Component {
     this.refs.field.value = "";
   }
 
+  handleKeyPress(e) {
+    if(!this.props.readonly && e.charCode === 13)
+      this.props.attempt();
+  }
+
 
   /**
    * Life Cycle Methdo for Rendering.
@@ -82,9 +91,11 @@ class FormInput extends Component {
     return (
       <div className = "flexDisplay">
         <input className = "flexible clickable padded"
+          onKeyPress = {this.handleKeyPress.bind(this)}
           type = {this.props.type}
           placeholder = {this.props.placeholder}
-          ref = "field" />
+          ref = "field"
+          readonly = {this.props.readonly ? "-" : null}/>
       </div>
     );
   }

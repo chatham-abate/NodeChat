@@ -22,7 +22,7 @@ class UserLog {
   }
 
   static get USER_ALREADY_ADDED_ERROR() {
-    return new ServerResponse(null, ["User Already n Conversation"]);
+    return new ServerResponse(null, ["User Already in Conversation"]);
   }
 
   static get GENERAL_CHAT_NAME() {
@@ -137,15 +137,10 @@ class UserLog {
   // Should Conversations have Keys?
 
   createConversation(validationKey, name, isPublic = true) {
-    const PUBLIC_CONVO_ERROR = "Public Conversations Require a Name";
+    let errorLog = this.conversationNameErrorLog(name);
 
-    if(name) {
-      let errorLog = this.conversationNameErrorLog(name, isPublic);
-
-      if(errorLog.length !== 0)
-        return new ServerResponse(null, errorLog);
-    } else if(isPublic)
-      return new ServerResponse(null, [PUBLIC_CONVO_ERROR]);
+    if(errorLog.length !== 0)
+      return new ServerResponse(null, errorLog);
 
     let newConvo =
       new Conversation(this.users[validationKey].username, name, isPublic);
@@ -157,7 +152,7 @@ class UserLog {
     } while(this.findConversation(conversationKey) !== null);
 
     let location = isPublic ? this.publics : this.privates;
-    location[convesationKey] = newConvo;
+    location[conversationKey] = newConvo;
 
     this.users[validationKey].joinConversation(conversationKey, newConvo);
 
@@ -197,6 +192,8 @@ class UserLog {
       return UserLog.USER_ALREADY_ADDED_ERROR;
 
     this.users[validationKey].joinConversation(conversationKey, conversation);
+
+    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 
   exitConversation(validationKey, conversationKey) {
@@ -240,29 +237,48 @@ class UserLog {
     return new ServerResponse(conversation.read(user.username));
   }
 
-  getConversationMap(validationKey) {
-    return new ServerResponse(this.users[validationKey].conversationMap(false));
+  getConversationMap(validationKey, withUsers) {
+    return new ServerResponse(this.users[validationKey].conversationMap(withUsers));
   }
 
-  getServerMap(validationKey) {
-    let usernames = [];
-
-    for(let vKey in this.users)
-      usernames.push(this.users[vKey].username);
-
-    let publicChats = {};
+  getPublicConversationMap(validationKey, withUsers) {
+    let map = {};
+    let username = this.users[validationKey].username;
 
     for(let cKey in this.publics)
-      publicChats[cKey] = this.publics[cKey].getMapEntry(null, false);
+      map[cKey] = this.publics[cKey].getMapEntry(username, withUsers);
 
-    let body = {
-      conversations : this.users[validationKey].conversationMap(true),
-      users : usernames,
-      publics : publicChats
-    };
-
-    return new ServerResponse(body);
+    return new ServerResponse(map);
   }
+
+  getUsersArray() {
+    let users = [];
+
+    for(let userKey in  this.users)
+      users.push(this.users[userKey].username);
+
+    return new ServerResponse(users);
+  }
+
+  // getServerMap(validationKey) {
+  //   let usernames = [];
+  //
+  //   for(let vKey in this.users)
+  //     usernames.push(this.users[vKey].username);
+  //
+  //   let publicChats = {};
+  //
+  //   for(let cKey in this.publics)
+  //     publicChats[cKey] = this.publics[cKey].getMapEntry(null, false);
+  //
+  //   let body = {
+  //     conversations : this.users[validationKey].conversationMap(true),
+  //     users : usernames,
+  //     publics : publicChats
+  //   };
+  //
+  //   return new ServerResponse(body);
+  // }
 
   loadConversationHistory(validationKey, conversationKey, endIndex) {
     const CHUNK_LENGTH = 20;
@@ -363,20 +379,27 @@ class UserLog {
   }
 
 
-  conversationNameErrorLog(name, isPublic) {
-    let errorLog = [];
-
+  conversationNameErrorLog(cName) {
     const CONVO_NAME_TAKEN = "Conversation Name Taken";
 
-    TextHandler.validateNameText(name, errorLog);
+    let check = (location, name) => {
+      for(let cKey in location)
+        if(location[cKey].name === name)
+          return true;
+       return false;
+    };
 
-    if(errorLog.length === 0 && isPublic) {
-      for(let conversation in this.publics)
-        if(conversation.name === name) {
-          errorLog.push(CONVO_NAME_TAKEN);
-          return errorLog;
-        }
-    }
+    let errorLog = [];
+
+    TextHandler.validateNameText(cName, errorLog);
+
+    if(errorLog.length !== 0)
+      return errorLog;
+
+    let found = (check(this.publics, cName) || check(this.privates, cName));
+
+    if(found)
+      errorLog = [CONVO_NAME_TAKEN];
 
     return errorLog;
   }

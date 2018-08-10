@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 
 import Fetcher from './componentModules/Fetcher';
+import JoinPane from './components/JoinPane';
+import CreatePane from "./components/CreatePane";
+import ChatsPane from './components/ChatsPane';
 
 
 class SettingsDisplay extends Component {
@@ -9,35 +12,63 @@ class SettingsDisplay extends Component {
     super();
 
     this.state = {
-      conversations : {},
-      users : [],
-      publics : []
+      panes : {},
+      currentPane : "",
+      timerID : null,
+      refresh : null
     };
   }
 
   componentDidMount() {
-    let body = {
-      validationKey : this.props.validationKey()
-    };
+    let timerID = setInterval(this.tick.bind(this), 1000);
 
-    Fetcher.fetchJSON("/api/serverMap", body, json => this.setState(json));
+    this.setState({
+      panes : {
+        "Join" : (<JoinPane setRefresh = {this.setRefresh.bind(this)}
+          validationKey = {this.props.validationKey} />),
+        "Create" : (<CreatePane setRefresh = {this.setRefresh.bind(this)}
+          validationKey = {this.props.validationKey} />),
+        "Chats" : (<ChatsPane setRefresh = {this.setRefresh.bind(this)}
+         validationKey = {this.props.validationKey}/>)
+      },
+      currentPane : "Join",
+      timerID : timerID
+    });
+  }
+
+  setRefresh(refresh) {
+    this.setState({refresh : refresh});
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.timerID);
+  }
+
+  tick() {
+    if(this.state.refresh)
+      this.state.refresh();
   }
 
   render() {
     return (
-      <div className = "color-secondary-1-4 columnFlex flexDisplay mainBlock">
-        <div className = "inflexible lightlyPadded color-primary-3 centeredText">
-          Settings
-        </div>
-        <div className = "padded flexible flexDisplay">
-          <div className = "padded fixedWidth color-secondary-2-4">
-            Selections Soon.
-          </div>
-          <div className = "padded darker flexible flexDisplay color-primary-4">
-            <div className = "flexible">
-              Settings soon
+      <div className = "flexDisplay mainBlock">
+        <div className = "flexible flexDisplay color-primary-4 applet">
+          <div className = "column">
+            {Object.keys(this.state.panes).map((title) => (
+              <div className = {"clickable button" +
+                (title === this.state.currentPane ? " toggled" : "")}
+                key = {title}
+                onClick = {() => this.setState({currentPane : title})}>
+                {title}
+              </div>
+            ))}
+            <div className = "clickable button"
+              onClick = {() => this.props.switchDisplay("chat")}>
+              Back
             </div>
           </div>
+
+          {this.state.panes[this.state.currentPane]}
         </div>
       </div>
     );
