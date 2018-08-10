@@ -45,16 +45,16 @@ b {
   flex-direction: column;
 }
 
-.center {
-  margin: auto;
-}
-
 .flexible {
   flex: 1;
 }
 
 .inflexible {
   flex: 0;
+}
+
+.fixedWidth {
+  width: 100px;
 }
 
 .topPadded {

@@ -30,7 +30,7 @@ class UserColumn extends Component {
 
   render() {
     return (
-      <div className = "color-primary-4 userColumn">
+      <div className = "color-primary-4 fixedWidth">
         <div ref = "settingsButton"
           className = "clickable button"
           onClick = {() => this.props.switchDisplay("settings")}>

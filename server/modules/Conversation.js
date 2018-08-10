@@ -83,13 +83,13 @@ class Conversation {
   }
 
   getMapEntry(username, withUsers) {
-    if(!(username in this.unreadLog))
-      return {};
+    let unreadLen = (username in this.unreadLog)
+      ? this.unreadLog[username].length : 0;
 
     let usernames = withUsers ? Object.keys(this.unreadLog) : [];
 
     return {
-      unreadLength : this.unreadLog[username].length,
+      unreadLength : unreadLen,
       name : this.displayName,
       isPublic : this.isPublic,
       users : usernames

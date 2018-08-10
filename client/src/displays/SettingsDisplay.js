@@ -16,7 +16,6 @@ class SettingsDisplay extends Component {
   }
 
   componentDidMount() {
-    console.log("a");
     let body = {
       validationKey : this.props.validationKey()
     };
@@ -26,9 +25,19 @@ class SettingsDisplay extends Component {
 
   render() {
     return (
-      <div className = "mainBlock">
-        <div className = "form">
-          Settings Coming Soon!
+      <div className = "color-secondary-1-4 columnFlex flexDisplay mainBlock">
+        <div className = "inflexible lightlyPadded color-primary-3 centeredText">
+          Settings
+        </div>
+        <div className = "padded flexible flexDisplay">
+          <div className = "padded fixedWidth color-secondary-2-4">
+            Selections Soon.
+          </div>
+          <div className = "padded darker flexible flexDisplay color-primary-4">
+            <div className = "flexible">
+              Settings soon
+            </div>
+          </div>
         </div>
       </div>
     );

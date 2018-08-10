@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
 });
 
 // Create New User Call.
-// username, spassword REQUIRED.
+// username, password REQUIRED.
 // If no Errors, an Empty Success Response is sent to the Client.
 app.post("/api/newUser", (req, res) => {
   res.json(log.loginNewUser(req.body.username, req.body.password));
@@ -39,6 +39,13 @@ app.post("/api/serverMap", (req, res) => {
 app.post("/api/conversationMap", (req, res) => {
   res.json(log.validate(req.body.validationKey,
     log.getConversationMap.bind(log)));
+});
+
+app.post("/api/joinConversation", (req, res) => {
+  res.json(
+    log.validate(req.body.validationKey, (validationKey) =>
+      log.joinConversation(validationKey, req.body.conversationKey))
+  );
 });
 
 app.post("/api/sendToConversation", (req, res) => {

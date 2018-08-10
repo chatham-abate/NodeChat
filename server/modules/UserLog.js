@@ -21,6 +21,10 @@ class UserLog {
     return new ServerResponse(null, ["Username Not Found"]);
   }
 
+  static get USER_ALREADY_ADDED_ERROR() {
+    return new ServerResponse(null, ["User Already n Conversation"]);
+  }
+
   static get GENERAL_CHAT_NAME() {
     return "General";
   }
@@ -161,22 +165,38 @@ class UserLog {
   }
 
   addUser(userame, conversationKey) {
-    const USER_ALREADY_ERROR = "User Already In Conversation";
-
     let conversation = this.findConversation(conversationKey);
 
     let userKey = this.findValidtionKey(username);
 
     if(!userKey)
-      return this.USERNAME_NOT_FOUND_ERROR;
+      return UserLog.USERNAME_NOT_FOUND_ERROR;
 
     if(username in conversation.unreadLog)
-      return new ServerResponse(null, USER_ALREADY_ERROR);
+      return UserLog.USER_ALREADY_ADDED_ERROR;
 
     this.users[userKey]
       .joinConversation(conversationKey, this.conversations[conversationKey]);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+  }
+
+  joinConversation(validationKey, conversationKey) {
+    const CONVERSATION_NOT_FOUND = "Conversation Not Found";
+    const NOT_PUBLIC = "Conversation is Private";
+
+    let conversation = this.findConversation(conversationKey);
+
+    if(!conversation)
+      return new ServerResponse(null, [CONVERSATION_NOT_FOUND]);
+
+    if(!conversation.isPublic)
+      return new ServerResponse(null, [NOT_PUBLIC]);
+
+    if(this.users[validationKey].username in conversation.unreadLog)
+      return UserLog.USER_ALREADY_ADDED_ERROR;
+
+    this.users[validationKey].joinConversation(conversationKey, conversation);
   }
 
   exitConversation(validationKey, conversationKey) {
@@ -230,10 +250,10 @@ class UserLog {
     for(let vKey in this.users)
       usernames.push(this.users[vKey].username);
 
-    let publicChats = [];
+    let publicChats = {};
 
     for(let cKey in this.publics)
-      publicChats.push(this.publics[cKey].displayName);
+      publicChats[cKey] = this.publics[cKey].getMapEntry(null, false);
 
     let body = {
       conversations : this.users[validationKey].conversationMap(true),

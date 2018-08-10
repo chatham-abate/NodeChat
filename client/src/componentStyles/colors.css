@@ -7,26 +7,20 @@
 
 /* As hex codes */
 
-.color-primary-0 { background-color: #3D3415 }	/* Main Primary color */
-.color-primary-1 { background-color: #706647 }
-.color-primary-2 { background-color: #504626 }
-.color-primary-3 { background-color: #2A2208 }
-.color-primary-4 { background-color: #161100 }
+.color-primary-0 { background-color: #00632E }	/* Main Primary color */
+.color-primary-1 { background-color: #00AA4F }
+.color-primary-2 { background-color: #00833D }
+.color-primary-3 { background-color: #003519 }
+.color-primary-4 { background-color: #001D0E }
 
-.color-secondary-1-0 { background-color: #102F15 }	/* Main Secondary color (1) */
-.color-secondary-1-1 { background-color: #36553C }
-.color-secondary-1-2 { background-color: #1D3D23 }
-.color-secondary-1-3 { background-color: #06200B }
-.color-secondary-1-4 { background-color: #001103 }
+.color-secondary-1-0 { background-color: #00584A }	/* Main Secondary color (1) */
+.color-secondary-1-1 { background-color: #00987F }
+.color-secondary-1-2 { background-color: #007662 }
+.color-secondary-1-3 { background-color: #003028 }
+.color-secondary-1-4 { background-color: #001A16 }
 
-.color-secondary-2-0 { background-color: #3D1815 }	/* Main Secondary color (2) */
-.color-secondary-2-1 { background-color: #704A47 }
-.color-secondary-2-2 { background-color: #502926 }
-.color-secondary-2-3 { background-color: #2A0B08 }
-.color-secondary-2-4 { background-color: #160200 }
-
-.color-complement-0 { background-color: #14122B }	/* Main Complement color */
-.color-complement-1 { background-color: #37354E }
-.color-complement-2 { background-color: #201F38 }
-.color-complement-3 { background-color: #0A091D }
-.color-complement-4 { background-color: #03020F }
+.color-secondary-2-0 { background-color: #0B7200 }	/* Main Secondary color (2) */
+.color-secondary-2-1 { background-color: #13C500 }
+.color-secondary-2-2 { background-color: #0E9800 }
+.color-secondary-2-3 { background-color: #063E00 }
+.color-secondary-2-4 { background-color: #042200 }

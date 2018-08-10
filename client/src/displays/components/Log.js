@@ -57,7 +57,7 @@ class Log extends Component {
     if(this.state.entries.length !== 0) {
       let logClassName =
         this.state.errorLog ?
-          "color-secondary-1-4" : "color-complement-4";
+          "color-secondary-1-4" : "color-secondary-2-4";
 
       return (
         <div className = {"flexDisplay " + logClassName}>
