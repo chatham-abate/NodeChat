@@ -68,7 +68,7 @@ class JoinPane extends Component {
           check = {this.check.bind(this)}
           handleClick = {this.selectChat.bind(this)} />
 
-        <div className = "flexible color-primary-4">
+        <div className = "flexible">
           <FormInput
             ref = "conversationCode"
             type = "text"

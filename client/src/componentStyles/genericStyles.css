@@ -18,10 +18,12 @@ b {
 .form {
   width: 350px;
   transition-duration: 1s;
+  border-radius: 15px;
 }
 
 .applet {
   margin: 10vh 10vw;
+  border-radius: 15px;
 }
 
 .centeredText {
@@ -51,7 +53,7 @@ b {
 .column {
   width: 150px;
   overflow: scroll;
-  border-right: 1px solid rgba(255,255,255,.6);
+  border-right: 1px solid rgba(255,255,255,.3);
 }
 
 .topPadded {

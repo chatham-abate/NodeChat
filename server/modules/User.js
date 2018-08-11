@@ -27,7 +27,7 @@ class User {
     conversation.addUser(this.username);
     this.conversations[conversationKey] = conversation;
   }
-
+  
   exitConversation(conversationKey) {
     if(!(conversationKey in this.conversations))
       return false;

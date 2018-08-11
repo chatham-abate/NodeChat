@@ -11,8 +11,12 @@ class ChatsPane extends Component {
 
     this.state = {
       conversations : {},
-      selected : "",
-      users : []
+      users : [],
+      actions : {
+        "Add" : "/api/addUser",
+        "Remove" : "/api/removeUser",
+        "Promote" : "/api/promoteUser"
+      }
     };
   }
 
@@ -62,8 +66,28 @@ class ChatsPane extends Component {
     })
   }
 
-  addUser() {
-    
+  preformAction(url) {
+    let chatFlag =
+      this.refs.conversationName.flag() && this.refs.conversationKey.flag();
+    let userFlag = this.refs.username.flag();
+
+    if(chatFlag || userFlag)
+      return;
+
+    let body = {
+      validationKey : this.props.validationKey(),
+      conversationKey : this.refs.conversationKey.value,
+      username : this.refs.username.value
+    };
+
+    Fetcher.fetchJSON(url, body, (json) => {
+      if(json.errors.length !== 0)
+        this.refs.mainLog.logErrors(json.errors);
+      else {
+        this.refs.username.unflagAndClear();
+        this.refs.mainLog.success();
+      }
+    });
   }
 
   selectChat(code) {
@@ -105,11 +129,11 @@ class ChatsPane extends Component {
           <FormInput ref = "conversationName"
             placeholder = "Conversation Name"
             type = "text"
-            readonly />
+            readOnly />
           <FormInput ref = "conversationKey"
             placeholder = "Conversation Key"
             type = "text"
-            readonly />
+            readOnly />
           <div className = "clickable button"
             onClick = {this.exitConversation.bind(this)}>
             Exit Conversation
@@ -119,17 +143,14 @@ class ChatsPane extends Component {
           <FormInput ref = "username"
             placeholder = "Username"
             type = "text"
-            readonly />
+            readOnly />
           <div className = "flexDisplay">
-            <div className = "clickable button">
-              Add
-            </div>
-            <div className = "clickable button">
-              Remove
-            </div>
-            <div className = "clickable button">
-              Kick
-            </div>
+            {Object.keys(this.state.actions).map((label) => (
+              <div className = "clickable button" key = {label}
+                onClick = {() => this.preformAction(this.state.actions[label])}>
+                {label}
+              </div>
+            ))}
           </div>
           <Logger ref = "mainLog" success = "Action Completed" />
         </div>

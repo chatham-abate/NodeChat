@@ -119,6 +119,15 @@ app.post("/api/removeUser", (req, res) => {
   );
 });
 
+app.post("/api/promoteUser", (req, res) => {
+  res.json(
+    log.validatePermissions(req.body.validationKey, req.body.conversationKey,
+      (validationKey, conversationKey) =>
+        log.promoteUser(req.body.username, conversationKey)
+    )
+  );
+});
+
 const port = 5000;
 
 app.listen(port, () => `Server running on port ${port}`);

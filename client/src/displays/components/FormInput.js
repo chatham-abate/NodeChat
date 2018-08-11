@@ -79,7 +79,7 @@ class FormInput extends Component {
   }
 
   handleKeyPress(e) {
-    if(!this.props.readonly && e.charCode === 13)
+    if(!this.props.readOnly && e.charCode === 13)
       this.props.attempt();
   }
 
@@ -95,7 +95,7 @@ class FormInput extends Component {
           type = {this.props.type}
           placeholder = {this.props.placeholder}
           ref = "field"
-          readonly = {this.props.readonly ? "-" : null}/>
+          readOnly = {this.props.readOnly}/>
       </div>
     );
   }

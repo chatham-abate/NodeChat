@@ -25,6 +25,10 @@ class UserLog {
     return new ServerResponse(null, ["User Already in Conversation"]);
   }
 
+  static get USER_NOT_IN_CONVO_ERROR() {
+    return new ServerResponse(null, ["User Not in Conversation"]);
+  }
+
   static get GENERAL_CHAT_NAME() {
     return "General";
   }
@@ -159,7 +163,7 @@ class UserLog {
     return new ServerResponse({conversationKey : conversationKey});
   }
 
-  addUser(userame, conversationKey) {
+  addUser(username, conversationKey) {
     let conversation = this.findConversation(conversationKey);
 
     let userKey = this.findValidtionKey(username);
@@ -171,7 +175,7 @@ class UserLog {
       return UserLog.USER_ALREADY_ADDED_ERROR;
 
     this.users[userKey]
-      .joinConversation(conversationKey, this.conversations[conversationKey]);
+      .joinConversation(conversationKey, conversation);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
@@ -202,9 +206,23 @@ class UserLog {
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 
-  removeUser(username, conversationKey) {
-    const NOT_IN_CONVO_ERROR = "User Not In Conversation";
+  promoteUser(username, conversationKey) {
+    const ALREADY_PERMITTED = "User Already an Owner";
 
+    let conversation = this.findConversation(conversationKey);
+
+    if(conversation.isPermitted(username))
+      return new ServerResponse(null, [ALREADY_PERMITTED]);
+
+    let promoted = conversation.promote(username);
+
+    if(!promoted)
+      return UserLog.USER_NOT_IN_CONVO_ERROR;
+
+    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+  }
+
+  removeUser(username, conversationKey) {
     let validationKey = this.findValidtionKey(username);
 
     if(!validationKey)
@@ -213,7 +231,7 @@ class UserLog {
     if(this.users[validationKey].exitConversation(conversationKey))
       return ServerResponse.EMPTY_SUCCESS_RESPONSE;
 
-    return new ServerResponse(null, [NOT_IN_CONVO_ERROR]);
+    return UserLog.USER_NOT_IN_CONVO_ERROR;
   }
 
   sendMessage(message, conversationKey) {
@@ -259,26 +277,6 @@ class UserLog {
 
     return new ServerResponse(users);
   }
-
-  // getServerMap(validationKey) {
-  //   let usernames = [];
-  //
-  //   for(let vKey in this.users)
-  //     usernames.push(this.users[vKey].username);
-  //
-  //   let publicChats = {};
-  //
-  //   for(let cKey in this.publics)
-  //     publicChats[cKey] = this.publics[cKey].getMapEntry(null, false);
-  //
-  //   let body = {
-  //     conversations : this.users[validationKey].conversationMap(true),
-  //     users : usernames,
-  //     publics : publicChats
-  //   };
-  //
-  //   return new ServerResponse(body);
-  // }
 
   loadConversationHistory(validationKey, conversationKey, endIndex) {
     const CHUNK_LENGTH = 20;

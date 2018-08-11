@@ -28,7 +28,7 @@ class SettingsDisplay extends Component {
           validationKey = {this.props.validationKey} />),
         "Create" : (<CreatePane setRefresh = {this.setRefresh.bind(this)}
           validationKey = {this.props.validationKey} />),
-        "Chats" : (<ChatsPane setRefresh = {this.setRefresh.bind(this)}
+        "Conversations" : (<ChatsPane setRefresh = {this.setRefresh.bind(this)}
          validationKey = {this.props.validationKey}/>)
       },
       currentPane : "Join",

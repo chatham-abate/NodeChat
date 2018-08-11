@@ -47,7 +47,7 @@ class CreatePane extends Component {
 
   render() {
     return (
-      <div className = "flexible flexDisplay color-primary-4">
+      <div className = "flexible flexDisplay">
         <div className = "flexible">
           <FormInput type = "text" placeholder = "Conversation Name"
             ref = "conversationName"
