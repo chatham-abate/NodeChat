@@ -22,7 +22,7 @@ b {
 }
 
 .applet {
-  margin: 10vh 10vw;
+  margin: 5vh 5vw;
   border-radius: 15px;
 }
 
@@ -50,10 +50,18 @@ b {
   flex: 0;
 }
 
+.bottomBordered {
+  border-bottom: 1px solid rgba(255,255,255,.2);
+}
+
+.leftBordered {
+  border-left: 1px solid rgba(255,255,255,.2);
+}
+
 .column {
   width: 150px;
   overflow: scroll;
-  border-right: 1px solid rgba(255,255,255,.3);
+  border-right: 1px solid rgba(255,255,255,.2);
 }
 
 .topPadded {

@@ -31,7 +31,8 @@ class AddressPane extends Component {
 
     let callback = scroll ? this.scrollToBottom.bind(this) : (() => {});
 
-    Fetcher.fetchJSON("/api/loadConversation", body, json => this.setState(json.body, callback));
+    Fetcher.fetchJSON("/api/loadConversation", body,
+      json => this.setState(json.body, callback));
   }
 
   update() {
@@ -73,7 +74,7 @@ class AddressPane extends Component {
   }
 
   handleResponse(response) {
-    console.log(response);
+    // @TODO
   }
 
   handleKeyPress(e) {
@@ -93,7 +94,7 @@ class AddressPane extends Component {
           Load Old Messages </div>);
 
     return (
-      <div className = "color-secondary-2-4 flexible flexDisplay columnFlex">
+      <div className = "flexible flexDisplay columnFlex">
         <div className = "chatPane">
           {messageLoader}
           {this.state.messages.map((message, index) =>

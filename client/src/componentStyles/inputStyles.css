@@ -20,7 +20,7 @@ input:focus, textarea:focus {
   text-decoration: none;
 }
 
-.button, input, textarea, .logEntry {
+.button, input, textarea, .logEntry, .bordered {
   border-radius: 15px;
   border: 1px solid rgba(255,255,255,.2);
 }
@@ -40,7 +40,7 @@ input:focus, textarea:focus {
 }
 
 .clickable:hover, input:focus, textarea:focus , .toggled{
-  background-color: rgba(255, 255, 255, .075);
+  background-color: rgba(255, 0, 255, .15);
   color: inherit;
 }
 

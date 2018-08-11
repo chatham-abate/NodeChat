@@ -31,9 +31,12 @@ class ColumnSelector extends Component {
 
     if(this.props.toggleable && item === this.state.toggled)
       itemClass += " toggled";
-    else
+    else if(this.props.check)
       itemClass += this.props.check(item)
         ? " color-secondary-2-4" : secondaryClass;
+
+    if(this.props.checkFlag)
+      itemClass += this.props.checkFlag(item) ? " unread" : "";
 
     return itemClass;
   }

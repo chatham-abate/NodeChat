@@ -4,6 +4,8 @@ import Fetcher from './componentModules/Fetcher';
 import JoinPane from './components/JoinPane';
 import CreatePane from "./components/CreatePane";
 import ChatsPane from './components/ChatsPane';
+import TitleBar from './components/TitleBar';
+import ColumnSelector from './components/ColumnSelector';
 
 
 class SettingsDisplay extends Component {
@@ -15,7 +17,11 @@ class SettingsDisplay extends Component {
       panes : {},
       currentPane : "",
       timerID : null,
-      refresh : null
+      refresh : null,
+      locations : {
+        "Chat Menu" : "chat",
+        "Log Out" : "login"
+      }
     };
   }
 
@@ -52,23 +58,16 @@ class SettingsDisplay extends Component {
   render() {
     return (
       <div className = "flexDisplay mainBlock">
-        <div className = "flexible flexDisplay color-primary-4 applet">
-          <div className = "column">
-            {Object.keys(this.state.panes).map((title) => (
-              <div className = {"clickable button" +
-                (title === this.state.currentPane ? " toggled" : "")}
-                key = {title}
-                onClick = {() => this.setState({currentPane : title})}>
-                {title}
-              </div>
-            ))}
-            <div className = "clickable button"
-              onClick = {() => this.props.switchDisplay("chat")}>
-              Back
-            </div>
+        <div className = "flexible flexDisplay columnFlex color-primary-4 applet">
+          <TitleBar addresses = {this.state.locations}
+            title = "Settings"
+            switchDisplay = {this.props.switchDisplay} />
+          <div className = "flexible flexDisplay">
+            <ColumnSelector toggleable
+              items = {Object.keys(this.state.panes)}
+              handleClick = {(pane) => this.setState({currentPane : pane})} />
+            {this.state.panes[this.state.currentPane]}
           </div>
-
-          {this.state.panes[this.state.currentPane]}
         </div>
       </div>
     );
