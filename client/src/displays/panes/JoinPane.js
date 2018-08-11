@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import FormInput from './FormInput';
-import Logger from './Logger';
+import FormInput from '../components/FormInput';
+import Logger from '../components/Logger';
 import Fetcher from '../componentModules/Fetcher';
-import ColumnSelector from './ColumnSelector';
+import ColumnSelector from '../components/ColumnSelector';
 
 class JoinPane extends Component {
 

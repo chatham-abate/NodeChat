@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import FormInput from './FormInput';
+import FormInput from '../components/FormInput';
 import Fetcher from '../componentModules/Fetcher';
-import Logger from './Logger';
+import Logger from '../components/Logger';
 
 class CreatePane extends Component {
 

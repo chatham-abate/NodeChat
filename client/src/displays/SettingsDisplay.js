@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 
 import Fetcher from './componentModules/Fetcher';
-import JoinPane from './components/JoinPane';
-import CreatePane from "./components/CreatePane";
-import ChatsPane from './components/ChatsPane';
+import JoinPane from './panes/JoinPane';
+import CreatePane from "./panes/CreatePane";
+import ChatsPane from './panes/ChatsPane';
 import TitleBar from './components/TitleBar';
 import ColumnSelector from './components/ColumnSelector';
 

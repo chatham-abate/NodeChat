@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import AddressPane from './components/AddressPane';
+
+import AddressPane from './panes/AddressPane';
 import ColumnSelector from './components/ColumnSelector';
 import Fetcher from './componentModules/Fetcher';
 import TitleBar from './components/TitleBar';

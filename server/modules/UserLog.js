@@ -14,25 +14,40 @@ class UserLog {
 
   /**
    * Default User Not Found Error.
-   *
    * @type {ServerResponse}
    */
   static get USERNAME_NOT_FOUND_ERROR() {
     return new ServerResponse(null, ["Username Not Found"]);
   }
 
+  /**
+   * User Already Added Error.
+   * @type {ServerResponse}
+   */
   static get USER_ALREADY_ADDED_ERROR() {
     return new ServerResponse(null, ["User Already in Conversation"]);
   }
 
+  /**
+   * User Not in Conversation Error.
+   * @type {ServerResponse}
+   */
   static get USER_NOT_IN_CONVO_ERROR() {
     return new ServerResponse(null, ["User Not in Conversation"]);
   }
 
+  /**
+   * General Chat Name.
+   * @type {string}
+   */
   static get GENERAL_CHAT_NAME() {
     return "General";
   }
 
+  /**
+   * General Chat Key.
+   * @type {string}
+   */
   static get GENERAL_CHAT_KEY() {
     return "~";
   }
@@ -48,6 +63,23 @@ class UserLog {
 
     this.publics[UserLog.GENERAL_CHAT_KEY] =
       new Conversation(UserLog.GENERAL_CHAT_KEY, UserLog.GENERAL_CHAT_NAME);
+  }
+
+
+  /**
+   * GET the Users Array Response.
+   * A Server Repsonse containing the array of Usernames in use.
+   *
+   * @return {ServerResponse}
+   *  The Response.
+   */
+  get usersArrayResponse() {
+   let users = [];
+
+   for(let userKey in  this.users)
+     users.push(this.users[userKey].username);
+
+   return new ServerResponse(users);
   }
 
 
@@ -82,6 +114,42 @@ class UserLog {
 
 
   /**
+   * Login a New User.
+   *
+   * @param  {string} username
+   *  The desired Username of the new User.
+   * @param  {string} password
+   *  The desired password of the new User.
+   *
+   * @return {ServerResponse}
+   *  If the new User is created with no errors,
+   *  an Empty Success Response is returned.
+   *  Otherwise, the errors are returned.
+   */
+  loginNewUser(username, password) {
+    let errorLog = this.usernameErrorLog(username);
+    TextHandler.validatePassword(password, errorLog);
+
+    if(errorLog.length != 0)
+      return new ServerResponse(null, errorLog);
+
+    let validationKey = "";
+
+    // Generate Validation Key.
+    do {
+      validationKey = TextHandler.generateKey();
+    } while(validationKey in this.users);
+
+    this.users[validationKey] = new User(username, password);
+
+    this.users[validationKey].joinConversation(
+        UserLog.GENERAL_CHAT_KEY, this.publics[UserLog.GENERAL_CHAT_KEY]);
+
+    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+  }
+
+
+  /**
    * Validate a function call.
    * If the given Validation Key is invalid,
    * the callback function is ignored
@@ -107,6 +175,27 @@ class UserLog {
     return new ServerResponse(null, [VALIDATION_ERROR]);
   }
 
+
+  /**
+   * Validate A Conversation call.
+   * A conversation call entails any
+   * request pertaining to a specific conversation.
+   *
+   * @param  {string}   validationKey
+   *  The Validation Key of the user.
+   * @param  {string}   conversationKey
+   *  The Conversation Key of the requested Conversation.
+   * @param  {Function} callback
+   *  The callback Function,
+   *  should take validationKey and conversationKey as parameters.
+   *  If the given Validation Key is valid
+   *  and the given Conversation Key is in the user's joined conversations,
+   *  the callback will be called.
+   *
+   * @return {ServerResponse}
+   *  If the callback is called, its return value.
+   *  Otherwise, an error.
+   */
   validateConversation(validationKey, conversationKey, callback) {
     const CONVERSATION_VALIDATION_ERROR = "Invalid Conversation Key";
 
@@ -118,6 +207,24 @@ class UserLog {
     });
   }
 
+
+  /**
+   * Validate the permissions of a request.
+   * Checks if the given user is an owner of the given conversation.
+
+   * @param  {string}   validationKey
+   *  The Validation Key of the requester.
+   * @param  {string}   conversationKey
+   *  The Conversation Key of the requested Conversation.
+   * @param  {Function} callback
+   *  The Function to call,
+   *  if the given user is an owenr of the given conversation.
+   *  Should take parameters (validationKey, conversationKey).
+   *
+   * @return {ServerResponse}
+   *  If the User is an Owner, the return value of the callback Function.
+   *  Otherwise, a Server Response error.
+   */
   validatePermissions(validationKey, conversationKey, callback) {
     const INVALID_PERMISSION_ERROR = "Invalid Permissions";
 
@@ -131,26 +238,68 @@ class UserLog {
       });
   }
 
-  // Messaging V2
-  // This new Version of Messaging will feature the Conversation Datastructure.
-  // This will allow for Group Chats with customizable members.
-  // Conversations will also Be how prvate Messaging chats are stored.
-  // Old MessageLogs, result in message histories being stored twce.
-  // They also restric the use of group chats aside from the General Chat.
-  //
-  // Should Conversations have Keys?
 
-  createConversation(validationKey, name, isPublic = true) {
+  /**
+   * Validate a Conversation action.
+   * Actions pertain to the modification of another user's status in a Conversation.
+   * Ex. Adding a User, Removing a User, Promoting a User.
+   *
+   * @param  {string}   validationKey
+   *  The Validation Key of the requester.
+   * @param  {string}   conversationKey
+   *  The Conversation Key of the requested Conversation.
+   * @param  {string}   username
+   *  The Username of the User in question.
+   * @param  {Function} callback
+   *  The callback function.
+   *  Should take paramters (username, conversationKey).
+   *
+   * @return {ServerResponse}
+   *  If the Callbcak function is called, its return value.
+   *  Otherwise, the errors.
+   */
+  validateAction(validationKey, conversationKey, username, callback) {
+    const SELF_ACTION_ERROR = "Cannot Preform Action On Self";
+
+    return this.validatePermissions(validationKey, conversationKey,
+      (validationKey, conversationKey) => {
+        // Check for action on Self
+        if(this.users[validationKey].username !== username)
+          return callback(username, conversationKey);
+
+        return new ServerResponse(null, [SELF_ACTION_ERROR]);
+      }
+    );
+  }
+
+
+  /**
+   * Create a Conversation.
+   *
+   * @param  {string}  validationKey
+   *  The Validation Key of the Creator.
+   * @param  {string}  name
+   *  The Name of the conversation.
+   * @param  {Boolean} isPublic
+   *  Whether the conversation should be public or not.
+   *
+   * @return {ServerResponse}
+   *  If no errors, the Conversation key of the created Chat.
+   *  Otherwise, the errors.
+   */
+  createConversation(validationKey, name, isPublic) {
     let errorLog = this.conversationNameErrorLog(name);
 
     if(errorLog.length !== 0)
       return new ServerResponse(null, errorLog);
 
+    // Create the Conversation
     let newConvo =
       new Conversation(this.users[validationKey].username, name, isPublic);
 
     let conversationKey = "";
 
+    // Generate the key.
     do {
       conversationKey = TextHandler.generateKey();
     } while(this.findConversation(conversationKey) !== null);
@@ -158,40 +307,40 @@ class UserLog {
     let location = isPublic ? this.publics : this.privates;
     location[conversationKey] = newConvo;
 
+    // Add the Creator.
     this.users[validationKey].joinConversation(conversationKey, newConvo);
 
     return new ServerResponse({conversationKey : conversationKey});
   }
 
-  addUser(username, conversationKey) {
-    let conversation = this.findConversation(conversationKey);
 
-    let userKey = this.findValidtionKey(username);
-
-    if(!userKey)
-      return UserLog.USERNAME_NOT_FOUND_ERROR;
-
-    if(username in conversation.unreadLog)
-      return UserLog.USER_ALREADY_ADDED_ERROR;
-
-    this.users[userKey]
-      .joinConversation(conversationKey, conversation);
-
-    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
-  }
-
+  /**
+   * Join a Conversation.
+   *
+   * @param  {string} validationKey
+   *  The Validation Key of the user trying to join.
+   * @param  {string} conversationKey
+   *  The Conversation Key of the desired conversation.
+   *
+   * @return {ServerResponse}
+   *  If no errors, an Empty Success Reponse.
+   *  Otherwise, the errors.
+   */
   joinConversation(validationKey, conversationKey) {
     const CONVERSATION_NOT_FOUND = "Conversation Not Found";
     const NOT_PUBLIC = "Conversation is Private";
 
+    // Find Conversation
     let conversation = this.findConversation(conversationKey);
 
     if(!conversation)
       return new ServerResponse(null, [CONVERSATION_NOT_FOUND]);
 
+    // Check the Conversations Privacy settings
     if(!conversation.isPublic)
       return new ServerResponse(null, [NOT_PUBLIC]);
 
+    // Check if User already added.
     if(this.users[validationKey].username in conversation.unreadLog)
       return UserLog.USER_ALREADY_ADDED_ERROR;
 
@@ -200,17 +349,76 @@ class UserLog {
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 
+
+  /**
+   * Exit a Conversation.
+   *
+   * @param  {string} validationKey
+   *  The Validation Key of the User wanting to exit.
+   * @param  {string} conversationKey
+   *  The COnversation Key of the requested Conversation.
+   *
+   * @return {ServerResponse}
+   * If no errors, an Empty Success Reponse.
+   * Otherwise, the errors.       [
+   */
   exitConversation(validationKey, conversationKey) {
     this.users[validationKey].exitConversation(conversationKey);
+
+    // If the Converation is now empty and private, terminate it.
+    if(conversationKey in this.privates
+      && Object.keys(this.privates[conversationKey].unreadLog).length === 0)
+      delete this.privates[conversationKey];
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 
+
+  /**
+   * Terminate A Conversation.
+   *
+   * @param  {string} conversationKey
+   *  The Converation Key of the Conversation to Terminate.
+   *
+   * @return {ServerResponse}
+   *  An Empty Success Response.
+   *  Given that the Conversation Key is Validated before this function is called,
+   *  this function should always be successful
+   */
+  terminateConversation(conversationKey) {
+    // Remove All Users
+    for(let userKey in this.users)
+      if(conversationKey in this.users[userKey].conversations)
+        this.users[userKey].exitConversation(conversationKey);
+
+    // Delete from the Log.
+    if(conversationKey in this.publics)
+      delete this.publics[conversationKey];
+    else
+      delete this.privates[conversationKey];
+
+    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+  }
+
+
+  /**
+   * Promote a User.
+   *
+   * @param  {string} username
+   *  The Username of the User to promote.
+   * @param  {string} conversationKey
+   *  The Conversation Key of the requested Conversation.
+   *
+   * @return {ServerResponse}
+   *  If no errors, an Empty Success Reponse.
+   *  Otherwise, the errors.
+   */
   promoteUser(username, conversationKey) {
     const ALREADY_PERMITTED = "User Already an Owner";
 
     let conversation = this.findConversation(conversationKey);
 
+    // Check if the user is already promoted.
     if(conversation.isPermitted(username))
       return new ServerResponse(null, [ALREADY_PERMITTED]);
 
@@ -222,9 +430,23 @@ class UserLog {
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 
+
+  /**
+   * Remove a User from a Conversation.
+   *
+   * @param  {string} username
+   *  The username of the User to remove.
+   * @param  {string} conversationKey
+   *  The Conversation Key of the Conversation to remove the given User from.
+   *
+   * @return {ServerResponse}
+   *  If no errors, an Empty Success Reponse.
+   *  Otherwise, the errors.
+   */
   removeUser(username, conversationKey) {
     let validationKey = this.findValidtionKey(username);
 
+    // Check if the username is of a valid User.
     if(!validationKey)
       return UserLog.USERNAME_NOT_FOUND_ERROR;
 
@@ -234,10 +456,57 @@ class UserLog {
     return UserLog.USER_NOT_IN_CONVO_ERROR;
   }
 
+
+  /**
+   * Add A User to a Conversation.
+   *
+   * @param {string} username
+   *  The Username of the user to add.
+   * @param {string} conversationKey
+   *  The Conversation Key of the requested Converation.
+   *
+   * @return {ServerResponse}
+   *  If no errors, an Empty Success Reponse.
+   *  Otherwise, the errors.
+   */
+  addUser(username, conversationKey) {
+    let conversation = this.findConversation(conversationKey);
+
+    let userKey = this.findValidtionKey(username);
+
+    // Check if the User is Found.
+    if(!userKey)
+      return UserLog.USERNAME_NOT_FOUND_ERROR;
+
+    // Check if teh User is already added.
+    if(username in conversation.unreadLog)
+      return UserLog.USER_ALREADY_ADDED_ERROR;
+
+    this.users[userKey]
+      .joinConversation(conversationKey, conversation);
+
+    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
+  }
+
+
+  /**
+   * Send A Message to a Conversation.
+   *
+   * @param  {string} message
+   *  The Message.
+   * @param  {string} conversationKey
+   *  The Conversation Key of the Conversation to send the Message to.
+   *
+   * @return {ServerResponse}
+   *  If no errors, an Empty Success Reponse.
+   *  Otherwise, the errors.
+   */
   sendMessage(message, conversationKey) {
     let conversation = this.findConversation(conversationKey);
 
     let errorLog = [];
+
+    // Validate the Message.
     TextHandler.validateMessage(message, errorLog);
 
     if(errorLog.length !== 0)
@@ -248,17 +517,57 @@ class UserLog {
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 
+
+  /**
+   * Read A Conversation.
+   *
+   * @param  {string} validationKey
+   *  The Validation Key of the User.
+   * @param  {string} conversationKey
+   *  The Conversation Key of the COnversation to read.
+   *
+   * @return {ServerResponse}
+   *  A ServerResponse containing the User's array of unread messages.
+   */
   readConversation(validationKey, conversationKey) {
+    // find the Conversation and User.
     let conversation = this.findConversation(conversationKey);
     let user = this.users[validationKey];
 
     return new ServerResponse(conversation.read(user.username));
   }
 
+
+  /**
+   * Get a User's Conversation Map.
+   * For each Conversation that the given User is a member of,
+   * the returned map will map that conversation's conversationKey to
+   * its User specific map entry.
+   *
+   * @param  {string} validationKey
+   *  The validation Key of the requested User.
+   * @param  {boolean} withUsers
+   *  Whether or not each conversation's array of
+   *  username's should be included as well.
+   *
+   * @return {ServerResponse}
+   *  The Server Reponse containing the map.
+   */
   getConversationMap(validationKey, withUsers) {
     return new ServerResponse(this.users[validationKey].conversationMap(withUsers));
   }
 
+
+  /**
+   * Get the Public Conversation Map.
+   * This map iwill contain the map entries of every Public Conversation.
+   *
+   * @param  {string} validationKey
+   *  The Validation Key of the User requesting the map.
+   * @param  {boolean} withUsers
+   *  Whether or not each conversation's Users array should be included or not.
+   * @return {[type]}               [description]
+   */
   getPublicConversationMap(validationKey, withUsers) {
     let map = {};
     let username = this.users[validationKey].username;
@@ -269,19 +578,27 @@ class UserLog {
     return new ServerResponse(map);
   }
 
-  getUsersArray() {
-    let users = [];
 
-    for(let userKey in  this.users)
-      users.push(this.users[userKey].username);
-
-    return new ServerResponse(users);
-  }
-
+  /**
+   * Load A COnversation's Message History.
+   *
+   * @param  {string} validationKey
+   *  The Validation Key of the requesting User.
+   * @param  {string} conversationKey
+   *  The Converation Key fo teh requested Conversation.
+   * @param  {number} endIndex
+   *  The Index of the earliest Message to load from
+   *  the conversation's Mesage Log.
+   *
+   * @return {ServerResponse}
+   *  If no errors, A Server Response containing teh Message Array.
+   *  Otherwise the Errors.
+   */
   loadConversationHistory(validationKey, conversationKey, endIndex) {
     const CHUNK_LENGTH = 20;
     const END_INDEX_ERROR = "Invalid Index";
 
+    // Find and read the Conversation.
     let conversation = this.findConversation(conversationKey);
     conversation.read(this.users[validationKey].username);
 
@@ -297,6 +614,7 @@ class UserLog {
 
     let messages = [];
 
+    // Load the Mesages.
     for(let i = startIndex; i < conversation.fullLog.length; i++)
       messages.push(conversation.fullLog[i]);
 
@@ -307,8 +625,6 @@ class UserLog {
 
     return new ServerResponse(body);
   }
-
-  // *****
 
   /**
    * Find the Validation Key of User.
@@ -377,6 +693,15 @@ class UserLog {
   }
 
 
+  /**
+   * Test a Conversation Name for Errors.
+   *
+   * @param  {string} username
+   *  The Converation Name.
+   *
+   * @return {Array}
+   *  The Error Log.
+   */
   conversationNameErrorLog(cName) {
     const CONVO_NAME_TAKEN = "Conversation Name Taken";
 
@@ -389,53 +714,19 @@ class UserLog {
 
     let errorLog = [];
 
+    // Validate the Name.
     TextHandler.validateNameText(cName, errorLog);
 
     if(errorLog.length !== 0)
       return errorLog;
 
+   // CHeck if name is already taken.
     let found = (check(this.publics, cName) || check(this.privates, cName));
 
     if(found)
       errorLog = [CONVO_NAME_TAKEN];
 
     return errorLog;
-  }
-
-
-  /**
-   * Login a New User.
-   *
-   * @param  {string} username
-   *  The desired Username of the new User.
-   * @param  {string} password
-   *  The desired password of the new User.
-   *
-   * @return {ServerResponse}
-   *  If the new User is created with no errors,
-   *  an Empty Success Response is returned.
-   *  Otherwise, the errors are returned.
-   */
-  loginNewUser(username, password) {
-    let errorLog = this.usernameErrorLog(username);
-    TextHandler.validatePassword(password, errorLog);
-
-    if(errorLog.length != 0)
-      return new ServerResponse(null, errorLog);
-
-    let validationKey = "";
-
-    // Generate Validation Key.
-    do {
-      validationKey = TextHandler.generateKey();
-    } while(validationKey in this.users);
-
-    this.users[validationKey] = new User(username, password);
-
-    this.users[validationKey].joinConversation(
-        UserLog.GENERAL_CHAT_KEY, this.publics[UserLog.GENERAL_CHAT_KEY]);
-
-    return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 }
 

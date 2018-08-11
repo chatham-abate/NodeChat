@@ -42,6 +42,10 @@ b {
   flex-direction: column;
 }
 
+.highlyFlexible {
+  flex : 5;
+}
+
 .flexible {
   flex: 1;
 }
@@ -62,6 +66,13 @@ b {
   width: 150px;
   overflow: scroll;
   border-right: 1px solid rgba(255,255,255,.2);
+}
+
+.screenSaver {
+  text-align: center;
+  padding: 5vh 5vw;
+  font-size: 1.5em;
+  color: white;
 }
 
 .topPadded {

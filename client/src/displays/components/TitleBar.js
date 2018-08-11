@@ -10,6 +10,7 @@ class TitleBar extends Component {
         </div>
         {Object.keys(this.props.addresses).map((label) => (
           <div className = "clickable lightlyPadded leftBordered"
+            key = {label}
             onClick = {() =>this.props.switchDisplay(this.props.addresses[label])}>
             {label}
           </div>

@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import Fetcher from '../componentModules/Fetcher';
-import FormInput from './FormInput';
-import ColumnSelector from './ColumnSelector';
-import Logger from './Logger';
+import FormInput from '../components/FormInput';
+import ColumnSelector from '../components/ColumnSelector';
+import ButtonBar from '../components/ButtonBar';
+import Logger from '../components/Logger';
 
 class ChatsPane extends Component {
 
@@ -12,6 +13,10 @@ class ChatsPane extends Component {
     this.state = {
       conversations : {},
       users : [],
+      soloActions : {
+        "Exit" : "/api/exitConversation",
+        "Terminate" : "/api/terminateConversation"
+      },
       actions : {
         "Add" : "/api/addUser",
         "Remove" : "/api/removeUser",
@@ -47,23 +52,23 @@ class ChatsPane extends Component {
     this.refs.user.untoggle();
   }
 
-  exitConversation() {
-    if(this.refs.conversationKey.flag() && this.refs.conversationName.flag())
+  preformSoloAction(url) {
+    if(this.refs.conversationName.flag() && this.refs.conversationKey.flag())
       return;
 
     let body = {
       validationKey : this.props.validationKey(),
       conversationKey : this.refs.conversationKey.value
-    };
+    }
 
-    Fetcher.fetchJSON("/api/exitConversation", body, (json) => {
+    Fetcher.fetchJSON(url, body, (json) => {
       if(json.errors.length !== 0)
         this.refs.exitErrorLog.logErrors(json.errors);
       else {
         this.resetForm();
         this.refs.mainLog.success();
       }
-    })
+    });
   }
 
   preformAction(url) {
@@ -85,6 +90,7 @@ class ChatsPane extends Component {
         this.refs.mainLog.logErrors(json.errors);
       else {
         this.refs.username.unflagAndClear();
+        this.refs.user.untoggle();
         this.refs.mainLog.success();
       }
     });
@@ -134,24 +140,17 @@ class ChatsPane extends Component {
             placeholder = "Conversation Key"
             type = "text"
             readOnly />
-          <div className = "clickable button"
-            onClick = {this.exitConversation.bind(this)}>
-            Exit Conversation
-          </div>
+          <ButtonBar attempt = {this.preformSoloAction.bind(this)}
+            actions = {this.state.soloActions} />
           <Logger ref = "exitErrorLog" />
+          <br />
           <br />
           <FormInput ref = "username"
             placeholder = "Username"
             type = "text"
             readOnly />
-          <div className = "flexDisplay">
-            {Object.keys(this.state.actions).map((label) => (
-              <div className = "clickable button" key = {label}
-                onClick = {() => this.preformAction(this.state.actions[label])}>
-                {label}
-              </div>
-            ))}
-          </div>
+          <ButtonBar attempt = {this.preformAction.bind(this)}
+            actions = {this.state.actions} />
           <Logger ref = "mainLog" success = "Action Completed" />
         </div>
       </div>

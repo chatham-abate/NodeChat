@@ -33,7 +33,7 @@ app.post("/api/login", (req, res) => {
 // Server Data
 
 app.post("/api/usersArray", (req, res) => {
-  res.json(log.getUsersArray());
+  res.json(log.usersArrayResponse);
 });
 
 app.post("/api/publicConversationMap", (req, res) => {
@@ -101,29 +101,40 @@ app.post("/api/exitConversation", (req, res) => {
   );
 });
 
-app.post("/api/addUser", (req, res) => {
+app.post("/api/terminateConversation", (req, res) => {
   res.json(
     log.validatePermissions(req.body.validationKey, req.body.conversationKey,
       (validationKey, conversationKey) =>
-        log.addUser(req.body.username, conversationKey)
+        log.terminateConversation(conversationKey)
+    )
+  );
+});
+
+// User Actions
+
+app.post("/api/addUser", (req, res) => {
+  res.json(
+    log.validateAction(req.body.validationKey, req.body.conversationKey, req.body.username,
+      (username, conversationKey) =>
+        log.addUser(username, conversationKey)
       )
   );
 });
 
 app.post("/api/removeUser", (req, res) => {
   res.json(
-    log.validatePermissions(req.body.validationKey, req.body.conversationKey,
-      (validationKey, conversationKey) =>
-        log.removeUser(req.body.username, conversationKey)
+    log.validateAction(req.body.validationKey, req.body.conversationKey, req.body.username,
+      (username, conversationKey) =>
+        log.removeUser(username, conversationKey)
       )
   );
 });
 
 app.post("/api/promoteUser", (req, res) => {
   res.json(
-    log.validatePermissions(req.body.validationKey, req.body.conversationKey,
-      (validationKey, conversationKey) =>
-        log.promoteUser(req.body.username, conversationKey)
+    log.validateAction(req.body.validationKey, req.body.conversationKey, req.body.username,
+      (username, conversationKey) =>
+        log.promoteUser(username, conversationKey)
     )
   );
 });
