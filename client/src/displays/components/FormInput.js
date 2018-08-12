@@ -95,7 +95,7 @@ class FormInput extends Component {
           type = {this.props.type}
           placeholder = {this.props.placeholder}
           ref = "field"
-          readOnly = {this.props.readOnly}/>
+          readOnly = {this.props.readOnly} />
       </div>
     );
   }

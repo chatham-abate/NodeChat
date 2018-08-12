@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+
 import Fetcher from '../componentModules/Fetcher';
 import FormInput from '../components/FormInput';
 import ColumnSelector from '../components/ColumnSelector';
@@ -118,6 +119,15 @@ class ChatsPane extends Component {
     return false;
   }
 
+  checkOwner(user) {
+    let code = this.refs.chat.selection;
+
+    if(code in this.state.conversations)
+      return this.state.conversations[code].owners.includes(user);
+
+    return false;
+  }
+
   render() {
     return (
       <div className = "flexible flexDisplay">
@@ -130,6 +140,7 @@ class ChatsPane extends Component {
           ref = "user"
           items = {this.state.users}
           handleClick = {this.selectUser.bind(this)}
+          checkFlag = {this.checkOwner.bind(this)}
           check = {this.checkUser.bind(this)} />
         <div className =  "flexible">
           <FormInput ref = "conversationName"

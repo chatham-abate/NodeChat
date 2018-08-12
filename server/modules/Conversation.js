@@ -1,4 +1,4 @@
-
+const Message = require("./Message").Message;
 
 /**
  * This is the Conversation Datastructure.
@@ -88,12 +88,14 @@ class Conversation {
     let unreadLen = joined ? this.unreadLog[username].length : 0;
 
     let usernames = withUsers ? Object.keys(this.unreadLog) : [];
+    let owners = withUsers ? Array.from(this.owners) : [];
 
     return {
       unreadLength : unreadLen,
       name : this.displayName,
       isPublic : this.isPublic,
       users : usernames,
+      owners : owners,
       joined : joined
     };
   }

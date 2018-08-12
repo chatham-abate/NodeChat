@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
+
 import Fetcher from '../componentModules/Fetcher';
 import Message from '../components/Message';
+import Logger from '../components/Logger';
 
 class AddressPane extends Component {
   constructor() {
@@ -11,10 +13,6 @@ class AddressPane extends Component {
       messages : [],
       startIndex : null
     };
-  }
-
-  componentDidMount() {
-    // this.switchAddress(this.props.initialAddress);
   }
 
   switchAddress(address) {
@@ -33,6 +31,7 @@ class AddressPane extends Component {
 
     Fetcher.fetchJSON("/api/loadConversation", body,
       json => this.setState(json.body, callback));
+
   }
 
   update() {
@@ -82,7 +81,8 @@ class AddressPane extends Component {
   }
 
   handleResponse(response) {
-    // @TODO
+    if(response.errors.length !== 0)
+      this.refs.errorLog.logErrors(response.errors);
   }
 
   handleKeyPress(e) {
@@ -95,7 +95,6 @@ class AddressPane extends Component {
   }
 
   render() {
-
     if(this.state.address === "")
       return (
         <div className = "flexible screenSaver">
@@ -117,9 +116,11 @@ class AddressPane extends Component {
             (<Message
               key = {index}
               authored = {message.sender === this.props.username()}
-              message = {message} />))}
+              message = {message} />)
+          )}
           <div ref = "bottom"> </div>
         </div>
+        <Logger ref = "errorLog" />
         <div className = "padded">
           <div className = "flexDisplay messagePane bordered">
             <textarea

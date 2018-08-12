@@ -5,12 +5,22 @@ class ColumnSelector extends Component {
     super();
 
     this.state = {
-      toggled : ""
+      toggled : "",
+      items : null
     };
   }
 
   get selection() {
     return this.state.toggled;
+  }
+
+  get items() {
+    return this.state.items;
+  }
+
+  setItems(items) {
+    if(this.props.mutable)
+      this.setState({items : items});
   }
 
   untoggle() {
@@ -42,14 +52,23 @@ class ColumnSelector extends Component {
   }
 
   render() {
+    let items = this.props.mutable ? this.state.items : this.props.items;
+
+    if(items === null)
+      return (
+        <div className = "column">
+
+        </div>
+      );
+
     if(this.props.labeled)
       return (
         <div className = "column">
-          {Object.keys(this.props.items).map((key) => (
+          {Object.keys(items).map((key) => (
             <div className = {this.getClassName(key)}
               onClick = {() => this.handleClick(key)}
               key = {key}>
-              {this.props.items[key].name}
+              {items[key].name}
             </div>
           ))}
         </div>
@@ -57,7 +76,7 @@ class ColumnSelector extends Component {
 
     return (
       <div className = "column">
-        {this.props.items.map((item) => (
+        {items.map((item) => (
           <div className = {this.getClassName(item)}
             onClick = {() => this.handleClick(item)}
             key = {item}>

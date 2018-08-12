@@ -5,10 +5,14 @@
  */
 class TextHandler {
 
-  static get SERVER_CHARACTER() {
-    return "~";
-  }
-
+  /**
+   * Validate the Text of a Message.
+   *
+   * @param  {Message} message
+   *  The Message.
+   * @param  {Array} errorLog
+   *  The Error Log.
+   */
   static validateMessage(message, errorLog) {
     const MESSAGE_MAX_LENGTH = 300;
     const MESSAGE_LENGTH_ERROR = "Invalid Message Length";

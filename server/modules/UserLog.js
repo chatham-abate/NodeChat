@@ -6,7 +6,8 @@ const Conversation = require("./Conversation").Conversation;
 
 
 /**
- * UserLog serves as the backend datastructure for storing Messages and Users.
+ * UserLog serves as the backend datastructure
+ * for storing Conversations and Users.
  *
  * @author Chatham Abate
  */
@@ -50,6 +51,10 @@ class UserLog {
    */
   static get GENERAL_CHAT_KEY() {
     return "~";
+  }
+
+  static serverMessage(text) {
+    return new Message(text, UserLog.GENERAL_CHAT_KEY);
   }
 
   /**
@@ -143,7 +148,8 @@ class UserLog {
     this.users[validationKey] = new User(username, password);
 
     this.users[validationKey].joinConversation(
-        UserLog.GENERAL_CHAT_KEY, this.publics[UserLog.GENERAL_CHAT_KEY]);
+      UserLog.GENERAL_CHAT_KEY, this.publics[UserLog.GENERAL_CHAT_KEY],
+      UserLog.serverMessage(username + " has joined the Server."));
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
@@ -307,8 +313,12 @@ class UserLog {
     let location = isPublic ? this.publics : this.privates;
     location[conversationKey] = newConvo;
 
+    let creationMessage = UserLog.serverMessage(
+      this.users[validationKey].username + " has created the Conversation.");
+
     // Add the Creator.
-    this.users[validationKey].joinConversation(conversationKey, newConvo);
+    this.users[validationKey]
+      .joinConversation(conversationKey, newConvo, creationMessage);
 
     return new ServerResponse({conversationKey : conversationKey});
   }
@@ -344,7 +354,11 @@ class UserLog {
     if(this.users[validationKey].username in conversation.unreadLog)
       return UserLog.USER_ALREADY_ADDED_ERROR;
 
-    this.users[validationKey].joinConversation(conversationKey, conversation);
+    let joinMessage = UserLog.serverMessage(
+      this.users[validationKey].username + " has joined the Conversation.");
+
+    this.users[validationKey]
+      .joinConversation(conversationKey, conversation, joinMessage);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
@@ -363,9 +377,11 @@ class UserLog {
    * Otherwise, the errors.       [
    */
   exitConversation(validationKey, conversationKey) {
-    this.users[validationKey].exitConversation(conversationKey);
+    let exitMessage = UserLog.serverMessage(
+      this.users[validationKey].username + " has exited the Conversation.");
 
-    // If the Converation is now empty and private, terminate it.
+    this.users[validationKey].exitConversation(conversationKey, exitMessage);
+
     if(conversationKey in this.privates
       && Object.keys(this.privates[conversationKey].unreadLog).length === 0)
       delete this.privates[conversationKey];
@@ -427,6 +443,8 @@ class UserLog {
     if(!promoted)
       return UserLog.USER_NOT_IN_CONVO_ERROR;
 
+    conversation.store(username + " has been become an Owner.");
+
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
 
@@ -445,12 +463,14 @@ class UserLog {
    */
   removeUser(username, conversationKey) {
     let validationKey = this.findValidtionKey(username);
+    let exitMessage =
+      UserLog.serverMessage(username + " has been removed from the Converation.");
 
     // Check if the username is of a valid User.
     if(!validationKey)
       return UserLog.USERNAME_NOT_FOUND_ERROR;
 
-    if(this.users[validationKey].exitConversation(conversationKey))
+    if(this.users[validationKey].exitConversation(conversationKey, exitMessage))
       return ServerResponse.EMPTY_SUCCESS_RESPONSE;
 
     return UserLog.USER_NOT_IN_CONVO_ERROR;
@@ -482,8 +502,12 @@ class UserLog {
     if(username in conversation.unreadLog)
       return UserLog.USER_ALREADY_ADDED_ERROR;
 
+    let additionMessgae = UserLog.serverMessage(
+      username + " has been added to the Conversation."
+    );
+
     this.users[userKey]
-      .joinConversation(conversationKey, conversation);
+      .joinConversation(conversationKey, conversation, additionMessgae);
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }

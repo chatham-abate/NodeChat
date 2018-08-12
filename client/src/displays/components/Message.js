@@ -10,10 +10,18 @@ class Message extends Component {
   }
 
   render() {
-    let messageClass = "clickable bordered message" + (
-      this.props.authored
+    let messageClass = "clickable bordered message";
+    let sender = null;
+
+    if(this.props.message.sender === "~")
+      messageClass += " centered";
+    else {
+      messageClass += (this.props.authored
         ? " color-secondary-2-4 authored"
         : " color-secondary-1-4");
+
+      sender = (<b>{this.props.message.sender}</b>)
+    }
 
     let expansion = this.state.expanded
       ? (<b> {this.props.message.date} </b>) : null;
@@ -22,7 +30,7 @@ class Message extends Component {
       <div className = "messageContainer">
         <span className = {messageClass}
           onClick = {() => this.setState({expanded : !this.state.expanded})}>
-          <b>{this.props.message.sender}</b>
+          {sender}
           <div className = "messageBulk">
             {this.props.message.text}
           </div>

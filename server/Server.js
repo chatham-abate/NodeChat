@@ -30,25 +30,34 @@ app.post("/api/login", (req, res) => {
   res.json(log.login(req.body.username, req.body.password));
 });
 
-// Server Data
-
+// Retrieve the Array of Users on the Server.
+// The Array contains each User's username.
 app.post("/api/usersArray", (req, res) => {
   res.json(log.usersArrayResponse);
 });
 
+// Retrieve the Server's Public Conversation Map.
+// validationKey REQUIRED.
 app.post("/api/publicConversationMap", (req, res) => {
   res.json(log.validate(req.body.validationKey, (validationKey) =>
     log.getPublicConversationMap(validationKey, req.body.withUsers)));
 });
 
+// Retrieve a Specific User's Converation Map.
+// validationKey REQUIRED.
 app.post("/api/conversationMap", (req, res) => {
  res.json(log.validate(req.body.validationKey, (validationKey) => {
    return log.getConversationMap(validationKey, req.body.withUsers);
  }))
 });
 
-// V2 Messaging
+// Conversation Request.
+// The following requests handle the modification of
+// any chat conversations on teh server.
 
+// Join A Conversation.
+// validationKey, conversationKey REQUIRED.
+// If no errors, an Empty Success Response is sent to the Client.
 app.post("/api/joinConversation", (req, res) => {
   res.json(
     log.validate(req.body.validationKey, (validationKey) =>
@@ -56,6 +65,9 @@ app.post("/api/joinConversation", (req, res) => {
   );
 });
 
+// Send a Message to a Conversation.
+// validationKey, conversationKey, text REQUIRED.
+// If no errors, an Empty Success Response is sent to the Client.
 app.post("/api/sendToConversation", (req, res) => {
   res.json(
     log.validateConversation(req.body.validationKey, req.body.conversationKey,
@@ -68,6 +80,9 @@ app.post("/api/sendToConversation", (req, res) => {
   );
 });
 
+// Read a Conversation.
+// validationKey, conversationKey REQUIRED.
+// If no errors, the array of unread messages will be sent to the Client.
 app.post("/api/readConversation", (req, res) => {
   res.json(
     log.validateConversation(req.body.validationKey, req.body.conversationKey,
@@ -76,6 +91,9 @@ app.post("/api/readConversation", (req, res) => {
   );
 });
 
+// Load the message History of a Conversation.
+// validationKey, conversationKey, endIndex REQUIRED.
+// If no errors, the Array of messages will be sent back to the Client.
 app.post("/api/loadConversation", (req, res) => {
   res.json(
     log.validateConversation(req.body.validationKey, req.body.conversationKey,
@@ -86,6 +104,10 @@ app.post("/api/loadConversation", (req, res) => {
   );
 });
 
+// Create a Conversation.
+// validationKey, name, isPublic REQUIRED.
+// If no errors, the Conversations's
+// conversationKey will be sent back to the Client.
 app.post("/api/createConversation", (req, res) => {
   res.json(
     log.validate(req.body.validationKey, (validationKey) =>
@@ -94,6 +116,9 @@ app.post("/api/createConversation", (req, res) => {
   );
 });
 
+// Exit a Conversation
+// validationKey, conversationKey REQUIRED.
+// If no errors, an Empty Success Response is sent to the Client.
 app.post("/api/exitConversation", (req, res) => {
   res.json(
     log.validateConversation(req.body.validationKey, req.body.conversationKey,
@@ -101,6 +126,9 @@ app.post("/api/exitConversation", (req, res) => {
   );
 });
 
+// Terminate a Conversation.
+// validationKey, conversationKey REQUIRED.
+// If no errors, an Empty Success Response is sent to the Client.
 app.post("/api/terminateConversation", (req, res) => {
   res.json(
     log.validatePermissions(req.body.validationKey, req.body.conversationKey,
@@ -111,7 +139,12 @@ app.post("/api/terminateConversation", (req, res) => {
 });
 
 // User Actions
+// The following requests require the User to be
+// an owner of the requested Conversation.
 
+// Add a User to a Conversation.
+// validationKey, conversationKey, username REQUIRED.
+// If no errors, an Empty Success Response is sent to the Client.
 app.post("/api/addUser", (req, res) => {
   res.json(
     log.validateAction(req.body.validationKey, req.body.conversationKey, req.body.username,
@@ -121,6 +154,9 @@ app.post("/api/addUser", (req, res) => {
   );
 });
 
+// Remove a User from  a Conversation
+// validationKey, conversationKey, username REQUIRED.
+// If no errors, an Empty Success Response is sent to the Client.
 app.post("/api/removeUser", (req, res) => {
   res.json(
     log.validateAction(req.body.validationKey, req.body.conversationKey, req.body.username,
@@ -130,6 +166,9 @@ app.post("/api/removeUser", (req, res) => {
   );
 });
 
+// Promote a User to an owner of a Conversation.
+// validationKey, conversationKey, username REQUIRED.
+// If no errors, an Empty Success Response is sent to the Client.
 app.post("/api/promoteUser", (req, res) => {
   res.json(
     log.validateAction(req.body.validationKey, req.body.conversationKey, req.body.username,

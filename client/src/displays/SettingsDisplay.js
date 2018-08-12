@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 
-import Fetcher from './componentModules/Fetcher';
 import JoinPane from './panes/JoinPane';
 import CreatePane from "./panes/CreatePane";
 import ChatsPane from './panes/ChatsPane';
@@ -8,8 +7,17 @@ import TitleBar from './components/TitleBar';
 import ColumnSelector from './components/ColumnSelector';
 
 
+/**
+ * Component Displaying Converstion settings.
+ * @extends Component
+ *
+ * @author Chatahm Abate
+ */
 class SettingsDisplay extends Component {
 
+  /**
+   * Constructor.
+   */
   constructor() {
     super();
 
@@ -17,17 +25,18 @@ class SettingsDisplay extends Component {
       panes : {},
       currentPane : "",
       timerID : null,
-      refresh : null,
-      locations : {
-        "Chat Menu" : "chat",
-        "Log Out" : "login"
-      }
+      refresh : null
     };
   }
 
+
+  /**
+   * Life Cycle Method.
+   */
   componentDidMount() {
     let timerID = setInterval(this.tick.bind(this), 1000);
 
+    // Set the panes.
     this.setState({
       panes : {
         "Join" : (<JoinPane setRefresh = {this.setRefresh.bind(this)}
@@ -42,24 +51,44 @@ class SettingsDisplay extends Component {
     });
   }
 
+
+  /**
+   * Set the refresh Function.
+   *
+   * @param {Function} refresh
+   *  The refresh Function.
+   */
   setRefresh(refresh) {
     this.setState({refresh : refresh});
   }
 
+
+  /**
+   * Life Cycle Method
+   */
   componentWillUnmount() {
+    // Clear the Timer.
     clearInterval(this.state.timerID);
   }
 
+
+  /**
+   * Tick Method.
+   */
   tick() {
     if(this.state.refresh)
       this.state.refresh();
   }
 
+
+  /**
+   * Life Cycle method for rendering.
+   */
   render() {
     return (
       <div className = "flexDisplay mainBlock">
         <div className = "flexible flexDisplay columnFlex color-primary-4 applet">
-          <TitleBar addresses = {this.state.locations}
+          <TitleBar addresses = {this.props.locations}
             title = "Settings"
             switchDisplay = {this.props.switchDisplay} />
           <div className = "flexible flexDisplay">

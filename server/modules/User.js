@@ -1,8 +1,6 @@
-const TextHandler = require("./TextHandler").TextHandler;
-
 
 /**
- * A User stores all nessacary Messagesa dn Data pertaining to as single User.
+ * A User stores all nessacary Conversations and Data pertaining to as single User.
  *
  * @author Chatham Abate
  */
@@ -23,21 +21,60 @@ class User {
     this.conversations = {};
   }
 
-  joinConversation(conversationKey, conversation) {
+
+  /** ############
+   * Join a Conversation.
+   *
+   * @param  {string} conversationKey
+   *  The conversationKey of the Conversation.
+   * @param  {Conversation} conversation
+   *  The actual Conversation.
+   */
+  joinConversation(conversationKey, conversation, message) {
     conversation.addUser(this.username);
     this.conversations[conversationKey] = conversation;
+
+    if(message)
+      conversation.store(message);
   }
-  
-  exitConversation(conversationKey) {
+
+
+  /**
+   * Exit a Conversation.
+   * @param  {string} conversationKey
+   *  The key of the conversation.
+   *
+   * @return {boolean}
+   *  True, if a converation was exited, False otherwise.
+   */
+  exitConversation(conversationKey, message) {
+    // Cannot be removed from a Conversation you are not a member of.
     if(!(conversationKey in this.conversations))
       return false;
 
     this.conversations[conversationKey].removeUser(this.username);
+    
+    if(message)
+      this.conversations[conversationKey].store(message);
+
     delete this.conversations[conversationKey];
 
     return true;
   }
 
+
+  /**
+   * Retrieve a User's Converation Map.
+   * For each Conversation this User is a member of,
+   * this maps Conversation Keys to Conversation map entries,
+   *
+   * @param  {boolean} withUsers
+   *  Whether or not each Conversation Map entry
+   *  should contain an array of their users.
+   *
+   * @return {Object}
+   *  The Map.
+   */
   conversationMap(withUsers) {
     let map = {};
 
