@@ -15,6 +15,9 @@ class ColumnSelector extends Component {
   }
 
   get items() {
+    if(this.state.items === null)
+      return this.props.labeled ? {} : [];
+
     return this.state.items;
   }
 
@@ -57,7 +60,7 @@ class ColumnSelector extends Component {
     if(items === null)
       return (
         <div className = "column">
-
+        
         </div>
       );
 

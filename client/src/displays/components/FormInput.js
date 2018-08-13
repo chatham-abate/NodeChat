@@ -20,6 +20,13 @@ class FormInput extends Component {
     return this.refs.field.value;
   }
 
+
+  /**
+   * SET the value of the Input Field.
+   *
+   * @param  {string} value
+   *  The Value.
+   */
   set value(value) {
     this.refs.field.value = value;
   }
@@ -78,6 +85,13 @@ class FormInput extends Component {
     this.refs.field.value = "";
   }
 
+
+  /**
+   * Handle the field's Key Press Event.
+   *
+   * @param  {KeyEvent} e
+   *  The Key Event.
+   */
   handleKeyPress(e) {
     if(!this.props.readOnly && e.charCode === 13)
       this.props.attempt();

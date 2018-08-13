@@ -1,5 +1,10 @@
 import React from 'react';
 
+/**
+ * Functional Component for Rendering a Title Bar.
+ *
+ * @author Chatham Abates
+ */
 function TitleBar(props) {
   return (
     <div className = "bottomBordered flexDisplay">

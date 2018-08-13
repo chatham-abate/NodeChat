@@ -22,13 +22,24 @@ class User {
   }
 
 
-  /** ############
+  get saveData() {
+    return {
+      username : this.username,
+      password : this.password,
+      conversations : Object.keys(this.conversations)
+    };
+  }
+
+
+  /**
    * Join a Conversation.
    *
    * @param  {string} conversationKey
    *  The conversationKey of the Conversation.
    * @param  {Conversation} conversation
    *  The actual Conversation.
+   * @param  {Message} messages
+   *  The Message.
    */
   joinConversation(conversationKey, conversation, message) {
     conversation.addUser(this.username);
@@ -43,6 +54,8 @@ class User {
    * Exit a Conversation.
    * @param  {string} conversationKey
    *  The key of the conversation.
+   * @param  {Message} messages
+   *  The Message.
    *
    * @return {boolean}
    *  True, if a converation was exited, False otherwise.
@@ -53,7 +66,7 @@ class User {
       return false;
 
     this.conversations[conversationKey].removeUser(this.username);
-    
+
     if(message)
       this.conversations[conversationKey].store(message);
 

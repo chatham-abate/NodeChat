@@ -1,6 +1,16 @@
 import React, {Component} from 'react';
 
+/**
+ * Component For Displaying a Single Message.
+ * @extends Component
+ *
+ * @author Chatham Abate
+ */
 class Message extends Component {
+
+  /**
+   * Constructor.
+   */
   constructor() {
     super();
 
@@ -9,10 +19,15 @@ class Message extends Component {
     }
   }
 
+
+  /**
+   * Life Cycle Method for Rendering.
+   */
   render() {
     let messageClass = "clickable bordered message";
     let sender = null;
 
+    // Determine Appearance of the Message.
     if(this.props.message.sender === "~")
       messageClass += " centered";
     else {
@@ -23,6 +38,7 @@ class Message extends Component {
       sender = (<b>{this.props.message.sender}</b>)
     }
 
+    // Determine if date should be displayed or not.
     let expansion = this.state.expanded
       ? (<b> {this.props.message.date} </b>) : null;
 

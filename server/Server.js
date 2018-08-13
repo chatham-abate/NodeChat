@@ -1,15 +1,23 @@
 const express = require('express');
 const bodyParser = require("body-parser");
+const readline = require('readline');
+const mkdirp = require('mkdirp');
 
 const UserLog = require("./modules/UserLog").UserLog;
 const Message = require("./modules/Message").Message;
 
+
 const app = express();
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-var log = new UserLog();
+var log = new UserLog("./saves");
 
 // Default Response.
 app.get("/", (req, res) => {
@@ -91,15 +99,11 @@ app.post("/api/readConversation", (req, res) => {
   );
 });
 
-// Load the message History of a Conversation.
-// validationKey, conversationKey, endIndex REQUIRED.
-// If no errors, the Array of messages will be sent back to the Client.
 app.post("/api/loadConversation", (req, res) => {
   res.json(
     log.validateConversation(req.body.validationKey, req.body.conversationKey,
       (validationKey, conversationKey) =>
-        log.loadConversationHistory(
-          validationKey, conversationKey, req.body.endIndex)
+        log.loadChunkHistory(validationKey, conversationKey, req.body.startIndex)
     )
   );
 });
@@ -176,6 +180,35 @@ app.post("/api/promoteUser", (req, res) => {
         log.promoteUser(username, conversationKey)
     )
   );
+});
+
+// Command Line Controller for the Server.
+rl.on('line', (cmd) => {
+  if(cmd.startsWith("init")) {
+    // Init Directories and General Chat.
+    console.log("Initializing General Chat...");
+    log.initGeneralChat();
+  } else if(cmd.startsWith("load")) {
+    // Load saed data from the server.
+    console.log("Loading Data...");
+    log.loadFromSave();
+  } else if(cmd.startsWith("save")) {
+    // Saver server data.
+    console.log("Saving Data...");
+    log.save();
+    console.log("Data Saved!");
+  } else if(cmd === "close") {
+    // CLose and save the server.
+    console.log("Saving Data...");
+    log.save();
+    console.log("Closing...");
+
+    rl.close();
+    process.stdin.destroy();
+    process.exit();
+  } else {
+    console.log("Command Not Found.");
+  }
 });
 
 const port = 5000;

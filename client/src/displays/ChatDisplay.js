@@ -22,6 +22,8 @@ class ChatDisplay extends Component {
     this.state = {
       timerID : null
     };
+
+    this._mounted = false;
   }
 
 
@@ -29,6 +31,8 @@ class ChatDisplay extends Component {
    * Life Cycle Method.
    */
   componentDidMount() {
+    this._mounted = true;
+
     // Fetch conversations.
     this.fetchConversations();
 
@@ -44,6 +48,8 @@ class ChatDisplay extends Component {
   componentWillUnmount() {
     // Clear the Timer.
     clearInterval(this.state.timerID);
+
+    this._mounted = false;
   }
 
 
@@ -87,7 +93,7 @@ class ChatDisplay extends Component {
 
 
   /**
-   * Fetch COnversation Data from the server.
+   * Fetch Conversation Data from the server.
    */
   fetchConversations() {
     let body = {
@@ -95,8 +101,12 @@ class ChatDisplay extends Component {
       withUsers : false
     };
 
+    // Make sure Column has not unmounted.
     Fetcher.fetchJSON("/api/conversationMap", body,
-      json => this.refs.chats.setItems(json.body));
+      json => {
+        if(this._mounted)
+          this.refs.chats.setItems(json.body);
+      });
   }
 
 

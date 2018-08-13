@@ -48,6 +48,10 @@ class NewUserDisplay extends Component {
 
     Fetcher.fetchJSON("/api/newUser", body,
       this.handleNewUserResponse.bind(this));
+
+    // Clear fields after the request is sent.
+    password.unflagAndClear();
+    passwordConfirm.unflagAndClear();
   }
 
 

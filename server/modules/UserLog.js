@@ -1,3 +1,6 @@
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+
 const User = require("./User").User;
 const TextHandler = require("./TextHandler").TextHandler;
 const ServerResponse = require("./ServerResponse").ServerResponse;
@@ -58,16 +61,75 @@ class UserLog {
   }
 
   /**
-   * Constructor
+   * Constructor.
+   *
+   * @param {string} path
+   *  The path of the saves file for the log.
    */
-  constructor() {
-    this.users = {}
+  constructor(path) {
+    this.path = path;
+    this.users = {};
 
     this.publics = {};
     this.privates = {};
+  }
 
+  initGeneralChat() {
+    // Setup directory.
+    if(!fs.existsSync(this.path))
+      fs.mkdirSync(this.path);
+
+    if(!fs.existsSync(this.path + "/conversations"))
+      fs.mkdirSync(this.path + "/conversations");
+      
     this.publics[UserLog.GENERAL_CHAT_KEY] =
-      new Conversation(UserLog.GENERAL_CHAT_KEY, UserLog.GENERAL_CHAT_NAME);
+      new Conversation([UserLog.GENERAL_CHAT_KEY], UserLog.GENERAL_CHAT_NAME, true,
+        this.path + "/conversations/" + UserLog.GENERAL_CHAT_KEY, true);
+  }
+
+  loadFromSave() {
+    let conversationKeys = fs.readdirSync(this.path + "/conversations");
+
+    // Load Conversations
+    for(let conversationKey of conversationKeys) {
+      let conversation = Conversation.loadConversation(this.path + "/conversations/" + conversationKey);
+
+      let destination = conversation.isPublic ? this.publics : this.privates;
+      destination[conversationKey] = conversation;
+    }
+
+    let userData = fs.readFileSync(this.path + "/userData.json");
+    let userJSON = JSON.parse(userData);
+
+    // Load Users
+    for(let validationKey in userJSON) {
+      let userSave = userJSON[validationKey];
+
+      let user = new User(userSave.username, userSave.password);
+      console.log("Loading User " + user.username + "...");
+      for(let conversationKey of userSave.conversations)
+        user.conversations[conversationKey] = this.findConversation(conversationKey);
+
+      this.users[validationKey] = user;
+    }
+  }
+
+  save() {
+    // User Data
+    let userData = {};
+
+    for(let validationKey in this.users)
+      userData[validationKey] = this.users[validationKey].saveData;
+
+    let jsonString = JSON.stringify(userData, null, 2);
+    fs.writeFileSync(this.path + "/userData.json", jsonString);
+
+    // Conversation Data
+    for(let publicKey in this.publics)
+      this.publics[publicKey].save();
+
+    for(let privateKey in this.privates)
+      this.privates[privateKey].save();
   }
 
 
@@ -299,16 +361,17 @@ class UserLog {
     if(errorLog.length !== 0)
       return new ServerResponse(null, errorLog);
 
-    // Create the Conversation
-    let newConvo =
-      new Conversation(this.users[validationKey].username, name, isPublic);
-
     let conversationKey = "";
 
     // Generate the key.
     do {
       conversationKey = TextHandler.generateKey();
     } while(this.findConversation(conversationKey) !== null);
+
+    // Create the Conversation
+    let newConvo =
+      new Conversation([this.users[validationKey].username], name, isPublic,
+        this.path + "/conversations/" + conversationKey, true);
 
     let location = isPublic ? this.publics : this.privates;
     location[conversationKey] = newConvo;
@@ -443,7 +506,8 @@ class UserLog {
     if(!promoted)
       return UserLog.USER_NOT_IN_CONVO_ERROR;
 
-    conversation.store(username + " has been become an Owner.");
+    conversation.store(UserLog.serverMessage(
+      username + " has been become an Owner."));
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
@@ -464,7 +528,7 @@ class UserLog {
   removeUser(username, conversationKey) {
     let validationKey = this.findValidtionKey(username);
     let exitMessage =
-      UserLog.serverMessage(username + " has been removed from the Converation.");
+      UserLog.serverMessage(username + " has been removed from the Conversation.");
 
     // Check if the username is of a valid User.
     if(!validationKey)
@@ -603,8 +667,29 @@ class UserLog {
   }
 
 
+  loadChunkHistory(validationKey, conversationKey, chunkIndex) {
+    const INDEX_ERROR = "Invalid Index";
+
+    // Find and read the Conversation.
+    let conversation = this.findConversation(conversationKey);
+    conversation.read(this.users[validationKey].username);
+
+    if(chunkIndex === null || chunkIndex === conversation.currentChunkIndex)
+      return new ServerResponse({
+        messages : conversation.currentChunk,
+        startIndex : conversation.currentChunkIndex
+      });
+    else if(chunkIndex > conversation.currentChunkIndex || chunkIndex < 0)
+      return new ServerResponse(null, [INDEX_ERROR]);
+
+    return new ServerResponse({
+      messages : conversation.loadJoinedChunks(chunkIndex),
+      startIndex : chunkIndex
+    });
+  }
+
   /**
-   * Load A COnversation's Message History.
+   * Load A Conversation's Message History.
    *
    * @param  {string} validationKey
    *  The Validation Key of the requesting User.
