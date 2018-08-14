@@ -99,6 +99,10 @@ app.post("/api/readConversation", (req, res) => {
   );
 });
 
+// Load a Conversation's History.
+// validationKey, conversationKey, startIndex REQUIRED.
+// If no errors, an Array of historical Messages
+// will be sent back to the CLient.
 app.post("/api/loadConversation", (req, res) => {
   res.json(
     log.validateConversation(req.body.validationKey, req.body.conversationKey,
@@ -182,30 +186,35 @@ app.post("/api/promoteUser", (req, res) => {
   );
 });
 
+// Welcome Message.
+console.log("--------------------");
+console.log("Welcome to NodeChat!");
+console.log("-------------------- \n");
+console.log("Use Command help for list of Commands.\n")
+
 // Command Line Controller for the Server.
 rl.on('line', (cmd) => {
-  if(cmd.startsWith("init")) {
+  if(cmd === "init") {
     // Init Directories and General Chat.
     console.log("Initializing General Chat...");
     log.initGeneralChat();
-  } else if(cmd.startsWith("load")) {
-    // Load saed data from the server.
+  } else if(cmd ==="load") {
+    // Load saved data from the server.
     console.log("Loading Data...");
     log.loadFromSave();
-  } else if(cmd.startsWith("save")) {
-    // Saver server data.
-    console.log("Saving Data...");
-    log.save();
-    console.log("Data Saved!");
   } else if(cmd === "close") {
     // CLose and save the server.
     console.log("Saving Data...");
     log.save();
     console.log("Closing...");
-
     rl.close();
     process.stdin.destroy();
     process.exit();
+  } else if(cmd === "help") {
+    // Help Messages.
+    console.log("\ninit (Initialize the Server's save directory and General Chat)");
+    console.log("load (Load a Server's old data from its save directory)");
+    console.log("close (Close the Server and save its data in the process)\n");
   } else {
     console.log("Command Not Found.");
   }

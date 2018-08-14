@@ -1,5 +1,11 @@
 import React from 'react';
 
+
+/**
+ * Functional Componnet Button Pad.
+ *
+ * @author Chatham Abate
+ */
 function ButtonBar(props) {
   return (
     <div className = "flexDisplay">

@@ -1,4 +1,6 @@
 /node_modules
 package-lock.json
 
+# Saves Folders
 /server/saves
+/saves

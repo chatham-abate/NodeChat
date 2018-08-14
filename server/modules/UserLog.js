@@ -1,5 +1,4 @@
 const fs = require('fs');
-const mkdirp = require('mkdirp');
 
 const User = require("./User").User;
 const TextHandler = require("./TextHandler").TextHandler;
@@ -74,19 +73,29 @@ class UserLog {
     this.privates = {};
   }
 
+
+  /**
+   * Initial teh Server saves directories and the General Chat.
+   */
   initGeneralChat() {
     // Setup directory.
     if(!fs.existsSync(this.path))
       fs.mkdirSync(this.path);
 
+    // Set up the Conversations Folder.
     if(!fs.existsSync(this.path + "/conversations"))
       fs.mkdirSync(this.path + "/conversations");
-      
+
+    // Create the General Chat.
     this.publics[UserLog.GENERAL_CHAT_KEY] =
       new Conversation([UserLog.GENERAL_CHAT_KEY], UserLog.GENERAL_CHAT_NAME, true,
         this.path + "/conversations/" + UserLog.GENERAL_CHAT_KEY, true);
   }
 
+
+  /**
+   * Load Server data from the saves folder.
+   */
   loadFromSave() {
     let conversationKeys = fs.readdirSync(this.path + "/conversations");
 
@@ -98,15 +107,16 @@ class UserLog {
       destination[conversationKey] = conversation;
     }
 
+    // Load User Data.
     let userData = fs.readFileSync(this.path + "/userData.json");
     let userJSON = JSON.parse(userData);
 
-    // Load Users
     for(let validationKey in userJSON) {
       let userSave = userJSON[validationKey];
 
       let user = new User(userSave.username, userSave.password);
       console.log("Loading User " + user.username + "...");
+
       for(let conversationKey of userSave.conversations)
         user.conversations[conversationKey] = this.findConversation(conversationKey);
 
@@ -114,13 +124,20 @@ class UserLog {
     }
   }
 
+
+  /**
+   * Save the Server Data.
+   */
   save() {
     // User Data
     let userData = {};
 
-    for(let validationKey in this.users)
+    for(let validationKey in this.users) {
+      console.log("Saving " + this.users[validationKey].username + "...");
       userData[validationKey] = this.users[validationKey].saveData;
+    }
 
+    // Save the User Data.
     let jsonString = JSON.stringify(userData, null, 2);
     fs.writeFileSync(this.path + "/userData.json", jsonString);
 
@@ -446,8 +463,10 @@ class UserLog {
     this.users[validationKey].exitConversation(conversationKey, exitMessage);
 
     if(conversationKey in this.privates
-      && Object.keys(this.privates[conversationKey].unreadLog).length === 0)
-      delete this.privates[conversationKey];
+      && Object.keys(this.privates[conversationKey].unreadLog).length === 0) {
+        this.privates[conversationKey].deleteRecords();
+        delete this.privates[conversationKey];
+      }
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
@@ -471,10 +490,14 @@ class UserLog {
         this.users[userKey].exitConversation(conversationKey);
 
     // Delete from the Log.
-    if(conversationKey in this.publics)
+    if(conversationKey in this.publics) {
+      this.publics[conversationKey].deleteRecords();
       delete this.publics[conversationKey];
-    else
+    }
+    else {
+      this.privates[conversationKey].deleteRecords();
       delete this.privates[conversationKey];
+    }
 
     return ServerResponse.EMPTY_SUCCESS_RESPONSE;
   }
@@ -667,6 +690,21 @@ class UserLog {
   }
 
 
+  /**
+   * Load Historic messages from a Conversation.
+   *
+   * @param  {string} validationKey
+   *  The Validation Key of the User.
+   * @param  {string} conversationKey
+   *  The Conversation Key of the Conversation.
+   * @param  {number} chunkIndex
+   *  The Index of the chunk to start with.
+   *  All Chunks after and including the starting chunk
+   *  will be concatonated together to form a single array of messages.
+   *
+   * @return {ServerResponse}
+   *  The Server Response containing the Historical Messages.
+   */
   loadChunkHistory(validationKey, conversationKey, chunkIndex) {
     const INDEX_ERROR = "Invalid Index";
 
@@ -674,7 +712,13 @@ class UserLog {
     let conversation = this.findConversation(conversationKey);
     conversation.read(this.users[validationKey].username);
 
-    if(chunkIndex === null || chunkIndex === conversation.currentChunkIndex)
+    // Null is sent when the Client is unaware of the number
+    // of message chunks the conversation holds.
+    // In this case the last chunk, and its index is returned.
+    if(chunkIndex === null)
+      return new ServerResponse(conversation.latestChunkObject);
+    // If the current Chunk index is given, no data needs to be loaded.
+    else if(chunkIndex === conversation.currentChunkIndex)
       return new ServerResponse({
         messages : conversation.currentChunk,
         startIndex : conversation.currentChunkIndex
@@ -682,57 +726,11 @@ class UserLog {
     else if(chunkIndex > conversation.currentChunkIndex || chunkIndex < 0)
       return new ServerResponse(null, [INDEX_ERROR]);
 
+    // Load the message chunks.
     return new ServerResponse({
       messages : conversation.loadJoinedChunks(chunkIndex),
       startIndex : chunkIndex
     });
-  }
-
-  /**
-   * Load A Conversation's Message History.
-   *
-   * @param  {string} validationKey
-   *  The Validation Key of the requesting User.
-   * @param  {string} conversationKey
-   *  The Converation Key fo teh requested Conversation.
-   * @param  {number} endIndex
-   *  The Index of the earliest Message to load from
-   *  the conversation's Mesage Log.
-   *
-   * @return {ServerResponse}
-   *  If no errors, A Server Response containing teh Message Array.
-   *  Otherwise the Errors.
-   */
-  loadConversationHistory(validationKey, conversationKey, endIndex) {
-    const CHUNK_LENGTH = 20;
-    const END_INDEX_ERROR = "Invalid Index";
-
-    // Find and read the Conversation.
-    let conversation = this.findConversation(conversationKey);
-    conversation.read(this.users[validationKey].username);
-
-    if(endIndex === null)
-      endIndex = conversation.fullLog.length;
-    else if(endIndex > conversation.fullLog.length)
-      return new ServerResponse(null, [END_INDEX_ERROR]);
-
-    let startIndex = endIndex - CHUNK_LENGTH;
-
-    if(startIndex < 0)
-      startIndex = 0;
-
-    let messages = [];
-
-    // Load the Mesages.
-    for(let i = startIndex; i < conversation.fullLog.length; i++)
-      messages.push(conversation.fullLog[i]);
-
-    let body = {
-      messages : messages,
-      startIndex : startIndex
-    };
-
-    return new ServerResponse(body);
   }
 
   /**

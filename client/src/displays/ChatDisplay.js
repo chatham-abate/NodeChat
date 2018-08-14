@@ -88,7 +88,7 @@ class ChatDisplay extends Component {
    *  If the Conversation has unread messages.
    */
   checkUnread(address) {
-    return this.refs.chats.items[address].unreadLength > 0;
+    return this.refs.chats.items[address].unread;
   }
 
 

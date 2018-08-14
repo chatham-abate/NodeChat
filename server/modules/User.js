@@ -22,6 +22,15 @@ class User {
   }
 
 
+  /**
+   * Get the User's Save Object.
+   * This includes all attribute of the User, except instead of storing
+   * the user's joined conversation's as Objects, all of the User's
+   * Conversation Keys are stored in an Array.
+   *
+   * @return {Object}
+   *  The Data.
+   */
   get saveData() {
     return {
       username : this.username,

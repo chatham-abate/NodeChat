@@ -1,9 +1,17 @@
+/* Chat Styles */
 
 .chatPane {
   flex: 1;
   color: white;
   overflow: scroll;
   scroll-behavior:
+}
+
+.messagePane {
+  flex : .2;
+  min-height: 50px;
+  max-height: 100px;
+  font-size: inherit;
 }
 
 .messageContainer {
@@ -30,11 +38,4 @@
 .authored {
   text-align: right;
   margin-left: auto;
-}
-
-.messagePane {
-  flex : .2;
-  min-height: 50px;
-  max-height: 100px;
-  font-size: inherit;
 }

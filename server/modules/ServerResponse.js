@@ -6,6 +6,10 @@
  */
 class ServerResponse {
 
+  /**
+   * This Response tells the Client its Request was successful.
+   * @type {ServerResponse}
+   */
   static get EMPTY_SUCCESS_RESPONSE() {
     return new ServerResponse("SUCCESS", []);
   }
