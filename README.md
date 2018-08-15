@@ -1,5 +1,5 @@
 # NodeChat
-A web based messaging platform intended for quick and convient conversations within a small network. __NodeChat__ uses a Node.js backend server with Express to handle calls to its API. For the actual fronted client, React.js is used.
+A web based messaging platform intended for quick and convient conversations within a small network. __NodeChat__ uses a Node.js backend server with Express to handle calls to its API, and React.js for the fronted client.
 
 ## Preview
 ![Preview Gif](preview.gif)
