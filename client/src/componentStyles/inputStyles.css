@@ -6,7 +6,7 @@ input, textarea {
   font-family: inherit;
   font-size: inherit;
   border: none;
-
+  background-color: rgba(255,255,255, .1);
   resize: none;
 }
 
@@ -20,11 +20,11 @@ input:focus, textarea:focus {
   flex: 1;
   cursor: default;
   text-decoration: none;
+  background-color: rgba(255,255,255, .05);
 }
 
 .button, input, textarea, .logEntry, .bordered {
-  border-radius: 15px;
-  border: 1px solid rgba(255,255,255,.2);
+  border-top: 1px solid rgba(255,255,255,.2);
 }
 
 .button, .logEntry {
@@ -42,16 +42,16 @@ input:focus, textarea:focus {
 }
 
 .clickable:hover, input:focus, textarea:focus , .toggled{
-  background-color: rgba(255, 0, 255, .15);
+  background-color: rgb(60,100,80);
   color: inherit;
 }
 
 ::placeholder, .faded, .button, .clickable:active {
-  color: rgba(255, 255, 255, .4);
+  color: rgba(255,255,255,.6);
 }
 
 .required::placeholder, .unread {
-  color: rgb(100, 180, 150);
+  border-right: 2px solid rgb(100,250,250);
 }
 
 ::selection {

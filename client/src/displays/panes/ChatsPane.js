@@ -255,8 +255,6 @@ class ChatsPane extends Component {
               "Terminate" : "/api/terminateConversation"
             }} />
           <Logger ref = "exitErrorLog" success = "Action Completed" />
-          <br />
-          <br />
           <FormInput ref = "username"
             placeholder = "Username"
             type = "text"

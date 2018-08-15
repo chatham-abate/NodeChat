@@ -70,9 +70,9 @@ class NewUserDisplay extends Component {
    */
   render() {
     return (
-      <div className = "mainBlock">
+      <div className = "color-primary-4 mainBlock">
         <div className = "topPadded">
-          <div className = "color-primary-4 centered form"
+          <div className = "centered form"
             ref = "form">
             <FormInput type = "text" attempt = {this.submitForm.bind(this)}
               placeholder = "Username" ref = "username" />

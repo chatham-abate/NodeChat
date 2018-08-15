@@ -7,7 +7,7 @@ import React from 'react';
  */
 function TitleBar(props) {
   return (
-    <div className = "bottomBordered flexDisplay">
+    <div className = "darker bottomBordered flexDisplay">
       <div className = "lightlyPadded flexible">
         {props.title}
       </div>

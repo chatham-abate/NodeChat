@@ -6,7 +6,8 @@
   background-color: rgb(10,10,10);
   font-family: "Courier New", Courier, monospace;
   font-size: .8em;
-  color: rgb(200,200,200);
+
+  color: white;
 }
 
 b {
@@ -20,12 +21,10 @@ b {
 .form {
   width: 350px;
   transition-duration: 1s;
-  border-radius: 15px;
 }
 
 .applet {
-  margin: 5vh 5vw;
-  border-radius: 15px;
+  /* Depreceated */
 }
 
 .centeredText {
