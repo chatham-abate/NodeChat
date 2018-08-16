@@ -190,7 +190,8 @@ app.post("/api/promoteUser", (req, res) => {
 console.log("--------------------");
 console.log("Welcome to NodeChat!");
 console.log("-------------------- \n");
-console.log("Use Command help for list of Commands.\n")
+console.log("Use Command help for list of Commands.\n");
+console.log("*** If you are not loading server data froma save, you must use command init. ***");
 
 // Command Line Controller for the Server.
 rl.on('line', (cmd) => {
