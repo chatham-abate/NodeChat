@@ -58,11 +58,7 @@ class AddressPane extends Component {
 
     // Submit the Load Request.
     Fetcher.fetchJSON("/api/loadConversation", body,
-      json => {
-        console.log(json);
-        this.setState(json.body, callback);
-      });
-
+      json => this.setState(json.body, callback));
   }
 
 
