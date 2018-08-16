@@ -191,7 +191,12 @@ console.log("--------------------");
 console.log("Welcome to NodeChat!");
 console.log("-------------------- \n");
 console.log("Use Command help for list of Commands.\n");
-console.log("*** If you are not loading server data from a save, you must use command init. ***");
+console.log("*** IMPORTANT ***");
+console.log("- If this is the first time you are running this server, enter the command init.");
+console.log("  This will initialize NodeChat's file directory and General Chat.");
+console.log("- Also, never quit out of the server without entering the command close.");
+console.log("  This command will make sure all unsaved user data is saved correctly before exiting.");
+console.log("***************** \n");
 
 // Command Line Controller for the Server.
 rl.on('line', (cmd) => {
