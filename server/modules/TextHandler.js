@@ -14,7 +14,7 @@ class TextHandler {
    *  The Error Log.
    */
   static validateMessage(message, errorLog) {
-    const MESSAGE_MAX_LENGTH = 300;
+    const MESSAGE_MAX_LENGTH = 1500;
     const MESSAGE_LENGTH_ERROR = "Invalid Message Length";
 
     if(message.text.length > MESSAGE_MAX_LENGTH
