@@ -93,6 +93,7 @@ class SettingsDisplay extends Component {
             switchDisplay = {this.props.switchDisplay} />
           <div className = "flexible flexDisplay">
             <ColumnSelector toggleable
+              initialSelection = "Join"
               items = {Object.keys(this.state.panes)}
               handleClick = {(pane) => this.setState({currentPane : pane})} />
             {this.state.panes[this.state.currentPane]}

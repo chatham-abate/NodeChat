@@ -22,6 +22,15 @@ class ColumnSelector extends Component {
 
 
   /**
+   * Life Cycle Method.
+   */
+  componentDidMount() {
+    if(this.props.initialSelection)
+      this.setState({toggled : this.props.initialSelection});
+  }
+
+
+  /**
    * Get the Option which is currently toggled.
    *
    * @return {string}
