@@ -3,7 +3,7 @@ A web based messaging platform intended for quick and convient conversations wit
 
 Try the [demo](https://nodechatclientdemo.herokuapp.com/)!
 
-__Note__ the demo is hosted by Heroku, so the server may be asleep currently. This may cause the webpage to load somewhat slowly. 
+__Note__ the demo is hosted by Heroku, so the server may be asleep currently. This may cause your first request to load slowly.
 
 ## Preview
 ![Preview Gif](preview.gif)
