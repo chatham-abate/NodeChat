@@ -10,6 +10,11 @@
   color: white;
 }
 
+::-webkit-scrollbar {
+  background: rgba(255, 255, 255, 0); 
+  width: 0px;
+}
+
 b {
   font-weight: normal;
 }
@@ -65,7 +70,7 @@ b {
 
 .column {
   width: 150px;
-  overflow: scroll;
+  overflow-y: scroll;
   border-right: 1px solid rgba(255,255,255,.2);
 }
 

@@ -75,7 +75,7 @@ class UserLog {
 
 
   /**
-   * Initial teh Server saves directories and the General Chat.
+   * Initial the Server saves directories and the General Chat.
    */
   initGeneralChat() {
     // Setup directory.
